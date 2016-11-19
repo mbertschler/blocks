@@ -226,64 +226,64 @@ const (
 var NoAttr = Attr{}
 
 func Doctype(attr Attr, children ...Block) Block {
-	return makeElement("!DOCTYPE", attr, children, Void)
+	return NewElement("!DOCTYPE", attr, children, Void)
 }
 func Html(attr Attr, children ...Block) Block {
-	return makeElement("html", attr, children, 0)
+	return NewElement("html", attr, children, 0)
 }
 func Head(attr Attr, children ...Block) Block {
-	return makeElement("head", attr, children, 0)
+	return NewElement("head", attr, children, 0)
 }
 func Noscript(attr Attr, children ...Block) Block {
-	return makeElement("noscript", attr, children, 0)
+	return NewElement("noscript", attr, children, 0)
 }
 func Iframe(attr Attr, children ...Block) Block {
-	return makeElement("iframe", attr, children, 0)
+	return NewElement("iframe", attr, children, 0)
 }
 func Link(attr Attr, children ...Block) Block {
-	return makeElement("link", attr, children, SelfClose)
+	return NewElement("link", attr, children, SelfClose)
 }
 func Meta(attr Attr, children ...Block) Block {
-	return makeElement("meta", attr, children, Void)
+	return NewElement("meta", attr, children, Void)
 }
 func Title(attr Attr, children ...Block) Block {
-	return makeElement("title", attr, children, 0)
+	return NewElement("title", attr, children, 0)
 }
 func Body(attr Attr, children ...Block) Block {
-	return makeElement("body", attr, children, 0)
+	return NewElement("body", attr, children, 0)
 }
 func Button(attr Attr, children ...Block) Block {
-	return makeElement("button", attr, children, 0)
+	return NewElement("button", attr, children, 0)
 }
 func Style(attr Attr, children ...Block) Block {
-	return makeElement("style", attr, children, CSSElement)
+	return NewElement("style", attr, children, CSSElement)
 }
 func Script(attr Attr, children ...Block) Block {
-	return makeElement("script", attr, children, JSElement)
+	return NewElement("script", attr, children, JSElement)
 }
 func Textarea(attr Attr, children ...Block) Block {
-	return makeElement("textarea", attr, children, 0)
+	return NewElement("textarea", attr, children, 0)
 }
 func Main(attr Attr, children ...Block) Block {
-	return makeElement("main", attr, children, 0)
+	return NewElement("main", attr, children, 0)
 }
 func Div(attr Attr, children ...Block) Block {
-	return makeElement("div", attr, children, 0)
+	return NewElement("div", attr, children, 0)
 }
 func A(attr Attr, children ...Block) Block {
-	return makeElement("a", attr, children, 0)
+	return NewElement("a", attr, children, 0)
 }
 func H1(attr Attr, children ...Block) Block {
-	return makeElement("h1", attr, children, 0)
+	return NewElement("h1", attr, children, 0)
 }
 func H2(attr Attr, children ...Block) Block {
-	return makeElement("h2", attr, children, 0)
+	return NewElement("h2", attr, children, 0)
 }
 func H3(attr Attr, children ...Block) Block {
-	return makeElement("h3", attr, children, 0)
+	return NewElement("h3", attr, children, 0)
 }
 
-func makeElement(el string, attr Attr, children []Block, opt Option) Block {
+func NewElement(el string, attr Attr, children []Block, opt Option) Block {
 	if len(children) == 0 {
 		return Element{el, attr, nil, opt}
 	}

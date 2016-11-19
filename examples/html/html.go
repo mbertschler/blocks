@@ -8,8 +8,11 @@ import (
 
 func main() {
 	root := html.Blocks{
+		// Option 1: directly add an element
 		html.Doctype(html.Attr{{"html", nil}}),
+		// Option 2: struct that implements Block interface (RenderHTML() Block)
 		HeadBlock{html.Attr{{"key", "key"}, {"value", "super"}}},
+		// Option 3: function that returns a Block
 		BodyBlock("Hello, world! :)"),
 	}
 	out, err := html.RenderString(root)
@@ -17,11 +20,12 @@ func main() {
 		fmt.Println("Error:", err)
 	}
 	fmt.Print(out)
+
 	out, err = html.RenderMinifiedString(root)
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
-	fmt.Print(out)
+	fmt.Println(out)
 }
 
 type HeadBlock struct {
