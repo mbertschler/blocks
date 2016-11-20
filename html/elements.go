@@ -243,6 +243,9 @@ func Iframe(attr Attr, children ...Block) Block {
 func Link(attr Attr, children ...Block) Block {
 	return NewElement("link", attr, children, SelfClose)
 }
+func Img(attr Attr, children ...Block) Block {
+	return NewElement("img", attr, children, SelfClose)
+}
 func Meta(attr Attr, children ...Block) Block {
 	return NewElement("meta", attr, children, Void)
 }
@@ -269,6 +272,9 @@ func Main(attr Attr, children ...Block) Block {
 }
 func Div(attr Attr, children ...Block) Block {
 	return NewElement("div", attr, children, 0)
+}
+func P(attr Attr, children ...Block) Block {
+	return NewElement("p", attr, children, 0)
 }
 func A(attr Attr, children ...Block) Block {
 	return NewElement("a", attr, children, 0)
