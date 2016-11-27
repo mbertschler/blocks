@@ -151,7 +151,7 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 				attr += " " + v.Key
 				continue
 			}
-			attr += " " + v.Key + "=" + fmt.Sprintf("%#v", v.Value)
+			attr += " " + v.Key + "=" + fmt.Sprint("\"", v.Value, "\"")
 		}
 		w.Write([]byte("<" + el.Type + attr))
 		if el.Options&SelfClose != 0 {
@@ -164,8 +164,16 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 				w.Write([]byte{'\n'})
 			}
 			item := ctx.enter()
+			var min bool
+			if el.Options&NoWhitespace != 0 {
+				min = ctx.minified
+				ctx.minified = true
+			}
 			for _, e := range el.Children {
 				renderHTML(e, w, ctx)
+			}
+			if el.Options&NoWhitespace != 0 {
+				ctx.minified = min
 			}
 			ctx.exit(item)
 		}
@@ -221,6 +229,7 @@ const (
 	SelfClose
 	CSSElement
 	JSElement
+	NoWhitespace
 )
 
 var NoAttr = Attr{}
@@ -287,6 +296,15 @@ func H2(attr Attr, children ...Block) Block {
 }
 func H3(attr Attr, children ...Block) Block {
 	return NewElement("h3", attr, children, 0)
+}
+func Pre(attr Attr, children ...Block) Block {
+	return NewElement("pre", attr, children, NoWhitespace)
+}
+func Label(attr Attr, children ...Block) Block {
+	return NewElement("label", attr, children, 0)
+}
+func Input(attr Attr, children ...Block) Block {
+	return NewElement("Input", attr, children, SelfClose)
 }
 
 func NewElement(el string, attr Attr, children []Block, opt Option) Block {
