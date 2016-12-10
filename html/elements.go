@@ -118,7 +118,7 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 		if !ctx.minified {
 			w.Write(bytes.Repeat([]byte{' '}, ctx.level*indentation))
 		}
-		w.Write([]byte(el))
+		w.Write([]byte(el + " "))
 		if !ctx.minified {
 			w.Write([]byte{'\n'})
 		}
