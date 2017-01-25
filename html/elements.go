@@ -285,6 +285,12 @@ func Div(attr Attr, children ...Block) Block {
 func P(attr Attr, children ...Block) Block {
 	return NewElement("p", attr, children, 0)
 }
+func Ul(attr Attr, children ...Block) Block {
+	return NewElement("ul", attr, children, 0)
+}
+func Li(attr Attr, children ...Block) Block {
+	return NewElement("li", attr, children, 0)
+}
 func A(attr Attr, children ...Block) Block {
 	return NewElement("a", attr, children, 0)
 }
