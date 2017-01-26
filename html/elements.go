@@ -279,6 +279,15 @@ func Textarea(attr Attr, children ...Block) Block {
 func Main(attr Attr, children ...Block) Block {
 	return NewElement("main", attr, children, 0)
 }
+func Nav(attr Attr, children ...Block) Block {
+	return NewElement("nav", attr, children, 0)
+}
+func Span(attr Attr, children ...Block) Block {
+	return NewElement("span", attr, children, 0)
+}
+func I(attr Attr, children ...Block) Block {
+	return NewElement("i", attr, children, 0)
+}
 func Div(attr Attr, children ...Block) Block {
 	return NewElement("div", attr, children, 0)
 }
