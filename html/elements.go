@@ -213,6 +213,56 @@ type AttrPair struct {
 	Value interface{}
 }
 
+func Id(id interface{}) Attr {
+	return Attr{AttrPair{Key: "id", Value: id}}
+}
+func Class(class interface{}) Attr {
+	return Attr{AttrPair{Key: "class", Value: class}}
+}
+func Href(href interface{}) Attr {
+	return Attr{AttrPair{Key: "href", Value: href}}
+}
+func Rel(rel interface{}) Attr {
+	return Attr{AttrPair{Key: "rel", Value: rel}}
+}
+func Name(name interface{}) Attr {
+	return Attr{AttrPair{Key: "name", Value: name}}
+}
+func Content(name interface{}) Attr {
+	return Attr{AttrPair{Key: "content", Value: name}}
+}
+func Defer() Attr {
+	return Attr{AttrPair{Key: "defer", Value: nil}}
+}
+func Src(src interface{}) Attr {
+	return Attr{AttrPair{Key: "src", Value: src}}
+}
+
+func (a Attr) Id(id interface{}) Attr {
+	return append(a, AttrPair{Key: "id", Value: id})
+}
+func (a Attr) Class(class interface{}) Attr {
+	return append(a, AttrPair{Key: "class", Value: class})
+}
+func (a Attr) Href(href interface{}) Attr {
+	return append(a, AttrPair{Key: "href", Value: href})
+}
+func (a Attr) Rel(rel interface{}) Attr {
+	return append(a, AttrPair{Key: "rel", Value: rel})
+}
+func (a Attr) Name(name interface{}) Attr {
+	return append(a, AttrPair{Key: "name", Value: name})
+}
+func (a Attr) Content(name interface{}) Attr {
+	return append(a, AttrPair{Key: "content", Value: name})
+}
+func (a Attr) Defer() Attr {
+	return append(a, AttrPair{Key: "defer", Value: nil})
+}
+func (a Attr) Src(src interface{}) Attr {
+	return append(a, AttrPair{Key: "src", Value: src})
+}
+
 type Element struct {
 	Type string
 	Attr
@@ -232,10 +282,8 @@ const (
 	NoWhitespace
 )
 
-var NoAttr = Attr{}
-
-func Doctype(attr Attr, children ...Block) Block {
-	return NewElement("!DOCTYPE", attr, children, Void)
+func Doctype(arg string) Block {
+	return NewElement("!DOCTYPE", Attr{{arg, nil}}, nil, Void)
 }
 func Html(attr Attr, children ...Block) Block {
 	return NewElement("html", attr, children, 0)

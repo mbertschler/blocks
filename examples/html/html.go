@@ -3,25 +3,25 @@ package main
 import (
 	"fmt"
 
-	ht "git.exahome.net/tools/blocks/html"
+	"git.exahome.net/tools/blocks/html"
 )
 
 func main() {
-	root := ht.Blocks{
+	root := html.Blocks{
 		// Option 1: directly add an element
-		ht.Doctype(ht.Attr{{"html", nil}}),
+		html.Doctype("html"),
 		// Option 2: struct that implements Block interface (RenderHTML() Block)
-		HeadBlock{ht.Attr{{"key", "key"}, {"value", "super"}}},
+		HeadBlock{html.Attr{{"key", "key"}, {"value", "super"}}},
 		// Option 3: function that returns a Block
 		BodyBlock("Hello, world! :)"),
 	}
-	out, err := ht.RenderString(root)
+	out, err := html.RenderString(root)
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
 	fmt.Print(out)
 
-	out, err = ht.RenderMinifiedString(root)
+	out, err = html.RenderMinifiedString(root)
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
@@ -29,20 +29,20 @@ func main() {
 }
 
 type HeadBlock struct {
-	ht.Attr
+	html.Attr
 }
 
-func (h HeadBlock) RenderHTML() ht.Block {
-	return ht.Head(ht.NoAttr,
-		ht.Meta(h.Attr),
+func (h HeadBlock) RenderHTML() html.Block {
+	return html.Head(nil,
+		html.Meta(h.Attr),
 	)
 }
 
-func BodyBlock(in string) ht.Block {
-	return ht.Body(ht.NoAttr,
-		ht.Main(ht.Attr{{"class", "main-class"}},
-			ht.H1(ht.NoAttr,
-				ht.Text(in),
+func BodyBlock(in string) html.Block {
+	return html.Body(nil,
+		html.Main(html.Class("main-class"),
+			html.H1(nil,
+				html.Text(in),
 			),
 		),
 	)
