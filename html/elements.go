@@ -17,9 +17,6 @@ type HTMLAttr template.HTMLAttr
 type JS template.JS
 type JSStr template.JSStr
 type URL template.URL
-type Value struct {
-	Value interface{}
-}
 
 func (Text) RenderHTML() Block       { return nil }
 func (Comment) RenderHTML() Block    { return nil }
@@ -31,7 +28,6 @@ func (b JS) renderString() string    { return string(b) }
 func (JSStr) RenderHTML() Block      { return nil }
 func (b JSStr) renderString() string { return string(b) }
 func (URL) RenderHTML() Block        { return nil }
-func (Value) RenderHTML() Block      { return nil }
 
 var indentation = 2
 
@@ -237,6 +233,21 @@ func Defer() Attr {
 func Src(src interface{}) Attr {
 	return Attr{AttrPair{Key: "src", Value: src}}
 }
+func Action(action interface{}) Attr {
+	return Attr{AttrPair{Key: "action", Value: action}}
+}
+func Method(method interface{}) Attr {
+	return Attr{AttrPair{Key: "method", Value: method}}
+}
+func Type(typ interface{}) Attr {
+	return Attr{AttrPair{Key: "type", Value: typ}}
+}
+func For(fo interface{}) Attr {
+	return Attr{AttrPair{Key: "for", Value: fo}}
+}
+func Value(value interface{}) Attr {
+	return Attr{AttrPair{Key: "value", Value: value}}
+}
 
 func (a Attr) Id(id interface{}) Attr {
 	return append(a, AttrPair{Key: "id", Value: id})
@@ -261,6 +272,21 @@ func (a Attr) Defer() Attr {
 }
 func (a Attr) Src(src interface{}) Attr {
 	return append(a, AttrPair{Key: "src", Value: src})
+}
+func (a Attr) Action(action interface{}) Attr {
+	return append(a, AttrPair{Key: "action", Value: action})
+}
+func (a Attr) Method(method interface{}) Attr {
+	return append(a, AttrPair{Key: "method", Value: method})
+}
+func (a Attr) Type(typ interface{}) Attr {
+	return append(a, AttrPair{Key: "type", Value: typ})
+}
+func (a Attr) For(fo interface{}) Attr {
+	return append(a, AttrPair{Key: "for", Value: fo})
+}
+func (a Attr) Value(value interface{}) Attr {
+	return append(a, AttrPair{Key: "value", Value: value})
 }
 
 type Element struct {
@@ -326,6 +352,9 @@ func Textarea(attr Attr, children ...Block) Block {
 }
 func Main(attr Attr, children ...Block) Block {
 	return NewElement("main", attr, children, 0)
+}
+func Form(attr Attr, children ...Block) Block {
+	return NewElement("form", attr, children, 0)
 }
 func Nav(attr Attr, children ...Block) Block {
 	return NewElement("nav", attr, children, 0)
