@@ -33,7 +33,7 @@ func TestTypedContent(t *testing.T) {
 		{
 			//`<style>{{.}} { color: blue }</style>`,
 			func(in Block) Block {
-				return Style(NoAttr, in, Text(" { color: blue }"))
+				return Style(nil, in, Text(" { color: blue }"))
 			},
 			[]string{
 				`ZgotmplZ`,
@@ -127,7 +127,7 @@ func TestTypedContent(t *testing.T) {
 		{
 			//`<textarea>{{.}}</textarea>`,
 			func(in Block) Block {
-				return Textarea(NoAttr, in)
+				return Textarea(nil, in)
 			},
 			[]string{
 				`&lt;b&gt; &#34;foo%&#34; O&#39;Reilly &amp;bar;`,
@@ -143,8 +143,8 @@ func TestTypedContent(t *testing.T) {
 		{
 			//`<script>alert({{.}})</script>`,
 			func(in Block) Block {
-				//return Script(NoAttr, JS("alert(", in, ")"))
-				return Script(NoAttr, JS("alert("), in, JS(")"))
+				//return Script(nil, JS("alert(", in, ")"))
+				return Script(nil, JS("alert("), in, JS(")"))
 			},
 			[]string{
 				`"\u003cb\u003e \"foo%\" O'Reilly \u0026bar;"`,
@@ -178,7 +178,7 @@ func TestTypedContent(t *testing.T) {
 		{
 			//`<script>alert("{{.}}")</script>`,
 			func(in Block) Block {
-				return Script(NoAttr, JS("alert("), in, JS(")"))
+				return Script(nil, JS("alert("), in, JS(")"))
 			},
 			[]string{
 				`\x3cb\x3e \x22foo%\x22 O\x27Reilly \x26bar;`,
@@ -226,7 +226,7 @@ func TestTypedContent(t *testing.T) {
 		{
 			//`<style>body { background: url('?img={{.}}') }</style>`,
 			func(in Block) Block {
-				return Style(NoAttr, CSS("body { background: url('?img="), in, CSS("') }"))
+				return Style(nil, CSS("body { background: url('?img="), in, CSS("') }"))
 			},
 			[]string{
 				`%3cb%3e%20%22foo%25%22%20O%27Reilly%20%26bar%3b`,
