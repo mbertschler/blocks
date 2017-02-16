@@ -87,6 +87,9 @@ func Pre(attr Attr, children ...Block) Block {
 func Label(attr Attr, children ...Block) Block {
 	return NewElement("label", attr, children, 0)
 }
+func Strong(attr Attr, children ...Block) Block {
+	return NewElement("strong", attr, children, 0)
+}
 func Input(attr Attr, children ...Block) Block {
 	return NewElement("input", attr, children, SelfClose)
 }

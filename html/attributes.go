@@ -104,3 +104,10 @@ func Data(key string, value interface{}) Attr {
 func (a Attr) Data(key string, value interface{}) Attr {
 	return append(a, AttrPair{Key: "data-" + key, Value: value})
 }
+
+func Charset(charset interface{}) Attr {
+	return Attr{AttrPair{Key: "charset", Value: charset}}
+}
+func (a Attr) Charset(charset interface{}) Attr {
+	return append(a, AttrPair{Key: "charset", Value: charset})
+}
