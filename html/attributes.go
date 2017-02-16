@@ -42,6 +42,13 @@ func Content(name interface{}) Attr {
 	return Attr{AttrPair{Key: "content", Value: name}}
 }
 
+func Checked() Attr {
+	return Attr{AttrPair{Key: "checked", Value: nil}}
+}
+func (a Attr) Checked() Attr {
+	return append(a, AttrPair{Key: "checked", Value: nil})
+}
+
 func Defer() Attr {
 	return Attr{AttrPair{Key: "defer", Value: nil}}
 }
