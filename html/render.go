@@ -168,7 +168,7 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 			w.Write([]byte(">"))
 		}
 		if len(el.Children) > 0 {
-			if !ctx.minified {
+			if !ctx.minified && el.Options&NoWhitespace == 0 {
 				w.Write([]byte{'\n'})
 			}
 			item := ctx.enter()
@@ -186,7 +186,7 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 			ctx.exit(item)
 		}
 		if el.Options&Void+el.Options&SelfClose == 0 {
-			if !ctx.minified {
+			if !ctx.minified && el.Options&NoWhitespace == 0 {
 				w.Write(bytes.Repeat([]byte{' '}, ctx.level*indentation))
 			}
 			w.Write([]byte("</" + el.Type + ">"))
