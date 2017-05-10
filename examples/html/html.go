@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"git.exahome.net/tools/blocks/html"
+	"github.com/mbertschler/blocks/html"
 )
 
 func main() {
