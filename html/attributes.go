@@ -111,3 +111,10 @@ func Charset(charset interface{}) Attr {
 func (a Attr) Charset(charset interface{}) Attr {
 	return append(a, AttrPair{Key: "charset", Value: charset})
 }
+
+func Styles(style string) Attr {
+	return Attr{AttrPair{Key: "style", Value: style}}
+}
+func (a Attr) Styles(style string) Attr {
+	return append(a, AttrPair{Key: "style", Value: style})
+}

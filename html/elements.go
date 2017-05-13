@@ -81,6 +81,15 @@ func H2(attr Attr, children ...Block) Block {
 func H3(attr Attr, children ...Block) Block {
 	return NewElement("h3", attr, children, 0)
 }
+func H4(attr Attr, children ...Block) Block {
+	return NewElement("h4", attr, children, 0)
+}
+func H5(attr Attr, children ...Block) Block {
+	return NewElement("h5", attr, children, 0)
+}
+func H6(attr Attr, children ...Block) Block {
+	return NewElement("h6", attr, children, 0)
+}
 func Pre(attr Attr, children ...Block) Block {
 	return NewElement("pre", attr, children, NoWhitespace)
 }
