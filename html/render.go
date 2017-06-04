@@ -113,6 +113,8 @@ func (c *renderCtx) exit(item int) {
 func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 	//var item int
 	switch el := c.(type) {
+	case nil:
+		return nil
 	case UnsafeString:
 		if !ctx.minified {
 			w.Write(bytes.Repeat([]byte{' '}, ctx.level*indentation))
