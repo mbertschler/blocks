@@ -40,7 +40,7 @@ func Script(attr Attr, children ...Block) Block {
 	return NewElement("script", attr, children, JSElement)
 }
 func Textarea(attr Attr, children ...Block) Block {
-	return NewElement("textarea", attr, children, 0)
+	return NewElement("textarea", attr, children, NoWhitespace)
 }
 func Main(attr Attr, children ...Block) Block {
 	return NewElement("main", attr, children, 0)
@@ -104,4 +104,7 @@ func Input(attr Attr, children ...Block) Block {
 }
 func Br() Block {
 	return NewElement("br", nil, nil, SelfClose)
+}
+func Hr(attr Attr) Block {
+	return NewElement("hr", attr, nil, SelfClose)
 }

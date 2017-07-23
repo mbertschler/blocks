@@ -114,6 +114,7 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 	//var item int
 	switch el := c.(type) {
 	case nil:
+		// do nothing
 		return nil
 	case UnsafeString:
 		if !ctx.minified {
