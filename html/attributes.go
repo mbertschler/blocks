@@ -4,7 +4,7 @@ func Attr(key string, value interface{}) Attributes {
 	return Attributes{AttrPair{Key: key, Value: value}}
 }
 func (a Attributes) Attr(key string, id interface{}) Attributes {
-	return append(a, AttrPair{Key: "id", Value: id})
+	return append(a, AttrPair{Key: key, Value: id})
 }
 
 func Id(id interface{}) Attributes {
