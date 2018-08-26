@@ -157,7 +157,7 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 			w.Write(bytes.Repeat([]byte{' '}, ctx.level*indentation))
 		}
 		var attr string
-		for _, v := range el.Attr {
+		for _, v := range el.Attributes {
 			if v.Value == nil {
 				attr += " " + v.Key
 				continue
@@ -218,7 +218,7 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 	return nil
 }
 
-type Attr []AttrPair
+type Attributes []AttrPair
 type AttrPair struct {
 	Key   string
 	Value interface{}
@@ -226,7 +226,7 @@ type AttrPair struct {
 
 type Element struct {
 	Type string
-	Attr
+	Attributes
 	Children Blocks
 	Options  Option
 }
@@ -243,7 +243,7 @@ const (
 	NoWhitespace
 )
 
-func NewElement(el string, attr Attr, children []Block, opt Option) Block {
+func NewElement(el string, attr Attributes, children []Block, opt Option) Block {
 	if len(children) == 0 {
 		return Element{el, attr, nil, opt}
 	}

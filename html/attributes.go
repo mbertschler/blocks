@@ -1,120 +1,127 @@
 package html
 
-func Id(id interface{}) Attr {
-	return Attr{AttrPair{Key: "id", Value: id}}
+func Attr(key string, value interface{}) Attributes {
+	return Attributes{AttrPair{Key: key, Value: value}}
 }
-func (a Attr) Id(id interface{}) Attr {
+func (a Attributes) Attr(key string, id interface{}) Attributes {
 	return append(a, AttrPair{Key: "id", Value: id})
 }
 
-func Class(class interface{}) Attr {
-	return Attr{AttrPair{Key: "class", Value: class}}
+func Id(id interface{}) Attributes {
+	return Attributes{AttrPair{Key: "id", Value: id}}
 }
-func (a Attr) Class(class interface{}) Attr {
+func (a Attributes) Id(id interface{}) Attributes {
+	return append(a, AttrPair{Key: "id", Value: id})
+}
+
+func Class(class interface{}) Attributes {
+	return Attributes{AttrPair{Key: "class", Value: class}}
+}
+func (a Attributes) Class(class interface{}) Attributes {
 	return append(a, AttrPair{Key: "class", Value: class})
 }
 
-func Href(href interface{}) Attr {
-	return Attr{AttrPair{Key: "href", Value: href}}
+func Href(href interface{}) Attributes {
+	return Attributes{AttrPair{Key: "href", Value: href}}
 }
-func (a Attr) Href(href interface{}) Attr {
+func (a Attributes) Href(href interface{}) Attributes {
 	return append(a, AttrPair{Key: "href", Value: href})
 }
 
-func Rel(rel interface{}) Attr {
-	return Attr{AttrPair{Key: "rel", Value: rel}}
+func Rel(rel interface{}) Attributes {
+	return Attributes{AttrPair{Key: "rel", Value: rel}}
 }
-func (a Attr) Rel(rel interface{}) Attr {
+func (a Attributes) Rel(rel interface{}) Attributes {
 	return append(a, AttrPair{Key: "rel", Value: rel})
 }
 
-func Name(name interface{}) Attr {
-	return Attr{AttrPair{Key: "name", Value: name}}
+func Name(name interface{}) Attributes {
+	return Attributes{AttrPair{Key: "name", Value: name}}
 }
-func (a Attr) Name(name interface{}) Attr {
+func (a Attributes) Name(name interface{}) Attributes {
 	return append(a, AttrPair{Key: "name", Value: name})
 }
 
-func (a Attr) Content(name interface{}) Attr {
+func (a Attributes) Content(name interface{}) Attributes {
 	return append(a, AttrPair{Key: "content", Value: name})
 }
-func Content(name interface{}) Attr {
-	return Attr{AttrPair{Key: "content", Value: name}}
+func Content(name interface{}) Attributes {
+	return Attributes{AttrPair{Key: "content", Value: name}}
 }
 
-func Checked() Attr {
-	return Attr{AttrPair{Key: "checked", Value: nil}}
+func Checked() Attributes {
+	return Attributes{AttrPair{Key: "checked", Value: nil}}
 }
-func (a Attr) Checked() Attr {
+func (a Attributes) Checked() Attributes {
 	return append(a, AttrPair{Key: "checked", Value: nil})
 }
 
-func Defer() Attr {
-	return Attr{AttrPair{Key: "defer", Value: nil}}
+func Defer() Attributes {
+	return Attributes{AttrPair{Key: "defer", Value: nil}}
 }
-func (a Attr) Defer() Attr {
+func (a Attributes) Defer() Attributes {
 	return append(a, AttrPair{Key: "defer", Value: nil})
 }
 
-func Src(src interface{}) Attr {
-	return Attr{AttrPair{Key: "src", Value: src}}
+func Src(src interface{}) Attributes {
+	return Attributes{AttrPair{Key: "src", Value: src}}
 }
-func (a Attr) Src(src interface{}) Attr {
+func (a Attributes) Src(src interface{}) Attributes {
 	return append(a, AttrPair{Key: "src", Value: src})
 }
 
-func Action(action interface{}) Attr {
-	return Attr{AttrPair{Key: "action", Value: action}}
+func Action(action interface{}) Attributes {
+	return Attributes{AttrPair{Key: "action", Value: action}}
 }
-func (a Attr) Action(action interface{}) Attr {
+func (a Attributes) Action(action interface{}) Attributes {
 	return append(a, AttrPair{Key: "action", Value: action})
 }
 
-func Method(method interface{}) Attr {
-	return Attr{AttrPair{Key: "method", Value: method}}
+func Method(method interface{}) Attributes {
+	return Attributes{AttrPair{Key: "method", Value: method}}
 }
-func (a Attr) Method(method interface{}) Attr {
+func (a Attributes) Method(method interface{}) Attributes {
 	return append(a, AttrPair{Key: "method", Value: method})
 }
 
-func Type(typ interface{}) Attr {
-	return Attr{AttrPair{Key: "type", Value: typ}}
+func Type(typ interface{}) Attributes {
+	return Attributes{AttrPair{Key: "type", Value: typ}}
 }
-func (a Attr) Type(typ interface{}) Attr {
+func (a Attributes) Type(typ interface{}) Attributes {
 	return append(a, AttrPair{Key: "type", Value: typ})
 }
 
-func For(fo interface{}) Attr {
-	return Attr{AttrPair{Key: "for", Value: fo}}
+func For(fo interface{}) Attributes {
+	return Attributes{AttrPair{Key: "for", Value: fo}}
 }
-func (a Attr) For(fo interface{}) Attr {
+func (a Attributes) For(fo interface{}) Attributes {
 	return append(a, AttrPair{Key: "for", Value: fo})
 }
 
-func Value(value interface{}) Attr {
-	return Attr{AttrPair{Key: "value", Value: value}}
+func Value(value interface{}) Attributes {
+	return Attributes{AttrPair{Key: "value", Value: value}}
 }
-func (a Attr) Value(value interface{}) Attr {
+func (a Attributes) Value(value interface{}) Attributes {
 	return append(a, AttrPair{Key: "value", Value: value})
 }
 
-func Data(key string, value interface{}) Attr {
-	return Attr{AttrPair{Key: "data-" + key, Value: value}}
+func Data(key string, value interface{}) Attributes {
+	return Attributes{AttrPair{Key: "data-" + key, Value: value}}
 }
-func (a Attr) Data(key string, value interface{}) Attr {
+func (a Attributes) Data(key string, value interface{}) Attributes {
 	return append(a, AttrPair{Key: "data-" + key, Value: value})
 }
 
-func Charset(charset interface{}) Attr {
-	return Attr{AttrPair{Key: "charset", Value: charset}}
+func Charset(charset interface{}) Attributes {
+	return Attributes{AttrPair{Key: "charset", Value: charset}}
 }
-func (a Attr) Charset(charset interface{}) Attr {
+func (a Attributes) Charset(charset interface{}) Attributes {
 	return append(a, AttrPair{Key: "charset", Value: charset})
 }
 
-func Styles(style string) Attr {
-	return Attr{AttrPair{Key: "style", Value: style}}
+func Styles(style string) Attributes {
+	return Attributes{AttrPair{Key: "style", Value: style}}
 }
-func (a Attr) Styles(style string) Attr {
+func (a Attributes) Styles(style string) Attributes {
 	return append(a, AttrPair{Key: "style", Value: style})
 }

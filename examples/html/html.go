@@ -31,12 +31,12 @@ func main() {
 }
 
 type HeadBlock struct {
-	html.Attr
+	html.Attributes
 }
 
 func (h HeadBlock) RenderHTML() html.Block {
 	return html.Head(nil,
-		html.Meta(h.Attr),
+		html.Meta(h.Attributes),
 	)
 }
 
