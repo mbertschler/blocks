@@ -243,7 +243,7 @@ const (
 	NoWhitespace
 )
 
-func NewElement(el string, attr Attributes, children []Block, opt Option) Block {
+func newElement(el string, attr Attributes, children []Block, opt Option) Block {
 	if len(children) == 0 {
 		return Element{el, attr, nil, opt}
 	}
@@ -251,4 +251,8 @@ func NewElement(el string, attr Attributes, children []Block, opt Option) Block 
 		return Element{el, attr, children, opt}
 	}
 	return Element{el, attr, Blocks(children), opt}
+}
+
+func Elem(el string, attr Attributes, children ...Block) Block {
+	return newElement(el, attr, children, 0)
 }
