@@ -189,7 +189,7 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 			ctx.exit(item)
 		}
 		if el.Options&Void+el.Options&SelfClose == 0 {
-			if !ctx.minified && el.Options&NoWhitespace == 0 {
+			if !ctx.minified && el.Options&NoWhitespace == 0 && len(el.Children) > 0 {
 				w.Write(bytes.Repeat([]byte{' '}, ctx.level*indentation))
 			}
 			w.Write([]byte("</" + el.Type + ">"))
