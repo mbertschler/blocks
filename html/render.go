@@ -54,7 +54,7 @@ type stringRenderer interface {
 	renderString() string
 }
 
-func Render(root Block, w io.Writer) error {
+func Render(w io.Writer, root Block) error {
 	err := renderHTML(root, w, &renderCtx{})
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func Render(root Block, w io.Writer) error {
 	return nil
 }
 
-func RenderMinified(root Block, w io.Writer) error {
+func RenderMinified(w io.Writer, root Block) error {
 	err := renderHTML(root, w, &renderCtx{minified: true})
 	if err != nil {
 		return err
