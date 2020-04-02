@@ -1,6 +1,7 @@
 Blocks rendering library
 ========================
-![status alpha](https://img.shields.io/badge/status-alpha-red.svg) [![](https://godoc.org/github.com/mbertschler/blocks?status.svg)](http://godoc.org/github.com/mbertschler/blocks)
+![status stable](https://img.shields.io/badge/status-stable-green?style=flat-square) [![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/mbertschler/blocks/html?tab=doc)
+
 
 Blocks is a Go library for writing HTML similar to React components.
 
