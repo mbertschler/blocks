@@ -119,7 +119,7 @@ func renderBlocks(print bool) {
 			"My blog",
 		},
 	}
-	err := Render(blocks(data), out)
+	err := Render(out, blocks(data))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -129,7 +129,7 @@ func renderBlocks(print bool) {
 		Items: []string{},
 	}
 
-	err = Render(blocks(noItems), out)
+	err = Render(out, blocks(noItems))
 	if err != nil {
 		log.Fatal(err)
 	}

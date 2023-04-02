@@ -156,15 +156,14 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 		if !ctx.minified {
 			w.Write(bytes.Repeat([]byte{' '}, ctx.level*indentation))
 		}
-		var attr string
+		w.Write([]byte("<" + el.Type))
 		for _, v := range el.Attributes {
 			if v.Value == nil {
-				attr += " " + v.Key
+				w.Write([]byte(" " + v.Key))
 				continue
 			}
-			attr += " " + v.Key + "=\"" + html.EscapeString(fmt.Sprint(v.Value)) + "\""
+			w.Write([]byte(" " + v.Key + "=\"" + html.EscapeString(fmt.Sprint(v.Value)) + "\""))
 		}
-		w.Write([]byte("<" + el.Type + attr))
 		if el.Options&SelfClose != 0 {
 			w.Write([]byte("/>"))
 		} else {
