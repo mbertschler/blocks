@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
@@ -119,5 +120,28 @@ func (s *Server) sessionMiddleware(c *gin.Context) {
 	err = s.sessions.SetSession(sess)
 	if err != nil {
 		log.Println("sessionMiddleware.SetSession:", err)
+	}
+}
+
+type Component interface {
+	Component() *ComponentConfig
+}
+
+type ActionFunc func(c *gin.Context, args json.RawMessage) (*Response, error)
+type BlockFunc func(c *gin.Context) (html.Block, error)
+
+type ComponentConfig struct {
+	Name    string
+	Pages   map[string]BlockFunc
+	Actions map[string]ActionFunc
+}
+
+func (s *Server) RegisterComponent(c Component) {
+	config := c.Component()
+	for path, fn := range config.Pages {
+		s.Page(path, PageFunc(fn))
+	}
+	for name, fn := range config.Actions {
+		s.SetFunc(config.Name+"."+name, Callable(fn))
 	}
 }

@@ -11,13 +11,13 @@ import (
 type DB struct {
 	lock     sync.Mutex
 	sessions map[string]*Session
-	counters map[string]*Counter
+	counters map[string]*StoredCounter
 }
 
 func NewDB() *DB {
 	return &DB{
 		sessions: make(map[string]*Session),
-		counters: make(map[string]*Counter),
+		counters: make(map[string]*StoredCounter),
 	}
 }
 
@@ -28,7 +28,7 @@ type Session struct {
 	New      bool
 }
 
-type Counter struct {
+type StoredCounter struct {
 	ID    string
 	Count int
 }
@@ -68,12 +68,12 @@ func (db *DB) SetSession(s *Session) error {
 	return nil
 }
 
-func (db *DB) GetCounter(id string) (*Counter, error) {
+func (db *DB) GetCounter(id string) (*StoredCounter, error) {
 	db.lock.Lock()
 	defer db.lock.Unlock()
 	c, ok := db.counters[id]
 	if !ok {
-		c = &Counter{
+		c = &StoredCounter{
 			ID:    id,
 			Count: 0,
 		}
@@ -82,7 +82,7 @@ func (db *DB) GetCounter(id string) (*Counter, error) {
 	return c, nil
 }
 
-func (db *DB) SetCounter(c *Counter) error {
+func (db *DB) SetCounter(c *StoredCounter) error {
 	db.lock.Lock()
 	defer db.lock.Unlock()
 	db.counters[c.ID] = c

@@ -1,12 +1,9 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/mbertschler/blocks/html"
 )
 
@@ -14,10 +11,15 @@ import (
 // -[x] cookie based session
 // -[x] guiapi
 // -[x] make the storage swappable
-// -[ ] offer cockroachdb as storage
 // -[x] counter demo
+// -[x] turn it into a reusable component
+// -[ ] extract page registration from component
+// -[ ] add a second page
+// -[ ] TODO MVC example?
+// -[ ] https://github.com/tastejs/todomvc/blob/master/app-spec.md
 //
 // maybe later:
+// -[ ] offer cockroachdb as storage
 // -[ ] text field for your name
 // -[ ] esbuild integration for more complex JS and importing
 
@@ -52,61 +54,9 @@ func pageLayout(main html.Block) html.Block {
 	}
 }
 
-func (a *App) CounterPage(c *gin.Context) (html.Block, error) {
-	sess := sessionFromContext(c)
-	counter, err := a.DB.GetCounter(sess.ID)
-	if err != nil {
-		return nil, err
-	}
-	main := html.Main(nil,
-		html.H1(nil, html.Text("Blocks")),
-		html.P(nil, html.Text("Blocks is a framework for building web applications in Go.")),
-		html.Div(html.Id("counter"),
-			html.H3(nil, html.Text("Counter")),
-			html.P(html.Id("count"), html.Text(fmt.Sprintf("Current count: %d", counter.Count))),
-			html.Button(html.Class("ga").Attr("ga-click", "counterDecrease"), html.Text("-")),
-			html.Text(" "),
-			html.Button(html.Class("ga").Attr("ga-click", "counterIncrease"), html.Text("+")),
-		),
-	)
-	return pageLayout(main), nil
-}
-
-func (a *App) CounterIncrease(c *gin.Context, args json.RawMessage) (*Response, error) {
-	sess := sessionFromContext(c)
-	counter, err := a.DB.GetCounter(sess.ID)
-	if err != nil {
-		return nil, err
-	}
-	counter.Count++
-	err = a.DB.SetCounter(counter)
-	if err != nil {
-		return nil, err
-	}
-	return ReplaceContent("#count", html.Text(fmt.Sprintf("Current count: %d", counter.Count)))
-}
-
-func (a *App) CounterDecrease(c *gin.Context, args json.RawMessage) (*Response, error) {
-	sess := sessionFromContext(c)
-	counter, err := a.DB.GetCounter(sess.ID)
-	if err != nil {
-		return nil, err
-	}
-	counter.Count--
-	err = a.DB.SetCounter(counter)
-	if err != nil {
-		return nil, err
-	}
-	return ReplaceContent("#count", html.Text(fmt.Sprintf("Current count: %d", counter.Count)))
-}
-
 func main() {
 	app := NewApp()
-
-	app.Server.Page("/", app.CounterPage)
-	app.Server.SetFunc("counterIncrease", app.CounterIncrease)
-	app.Server.SetFunc("counterDecrease", app.CounterDecrease)
-
+	app.Server.RegisterComponent(&Counter{App: app})
 	app.Server.Static("/js/", "./js")
 	app.Server.Static("/css/", "./css")
 
