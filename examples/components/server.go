@@ -132,16 +132,16 @@ type BlockFunc func(c *gin.Context) (html.Block, error)
 
 type ComponentConfig struct {
 	Name    string
-	Pages   map[string]BlockFunc
 	Actions map[string]ActionFunc
 }
 
 func (s *Server) RegisterComponent(c Component) {
 	config := c.Component()
-	for path, fn := range config.Pages {
-		s.Page(path, PageFunc(fn))
-	}
 	for name, fn := range config.Actions {
 		s.SetFunc(config.Name+"."+name, Callable(fn))
 	}
+}
+
+func (s *Server) RegisterPage(path string, fn PageFunc) {
+	s.Page(path, fn)
 }

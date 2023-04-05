@@ -3,8 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-
-	"github.com/mbertschler/blocks/html"
 )
 
 // TODO:
@@ -35,28 +33,16 @@ func NewApp() *App {
 	return app
 }
 
-func pageLayout(main html.Block) html.Block {
-	return html.Blocks{
-		html.Doctype("html"),
-		html.Html(nil,
-			html.Head(nil,
-				html.Meta(html.Charset("utf-8")),
-				html.Title(nil, html.Text("Blocks")),
-				html.Link(html.Rel("stylesheet").Href("https://cdn.jsdelivr.net/npm/simpledotcss@2.2.0/simple.min.css")),
-				html.Link(html.Rel("stylesheet").Href("/css/main.css")),
-			),
-			html.Body(nil,
-				main,
-				html.Script(html.Src("/js/guiapi.js")),
-				html.Script(html.Src("/js/main.js")),
-			),
-		),
-	}
-}
-
 func main() {
 	app := NewApp()
-	app.Server.RegisterComponent(&Counter{App: app})
+	counter := &Counter{App: app}
+	app.Server.RegisterComponent(counter)
+	app.Server.RegisterPage("/counter", counter.RenderPage)
+
+	todoList := &TodoList{App: app}
+	app.Server.RegisterComponent(todoList)
+	app.Server.RegisterPage("/", todoList.RenderPage)
+
 	app.Server.Static("/js/", "./js")
 	app.Server.Static("/css/", "./css")
 

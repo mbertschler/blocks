@@ -15,13 +15,29 @@ type Counter struct {
 func (c *Counter) Component() *ComponentConfig {
 	return &ComponentConfig{
 		Name: "Counter",
-		Pages: map[string]BlockFunc{
-			"/": c.RenderPage,
-		},
 		Actions: map[string]ActionFunc{
 			"Increase": c.Increase,
 			"Decrease": c.Decrease,
 		},
+	}
+}
+
+func counterLayout(main html.Block) html.Block {
+	return html.Blocks{
+		html.Doctype("html"),
+		html.Html(nil,
+			html.Head(nil,
+				html.Meta(html.Charset("utf-8")),
+				html.Title(nil, html.Text("Blocks")),
+				html.Link(html.Rel("stylesheet").Href("https://cdn.jsdelivr.net/npm/simpledotcss@2.2.0/simple.min.css")),
+				html.Link(html.Rel("stylesheet").Href("/css/main.css")),
+			),
+			html.Body(nil,
+				main,
+				html.Script(html.Src("/js/guiapi.js")),
+				html.Script(html.Src("/js/main.js")),
+			),
+		),
 	}
 }
 
@@ -35,7 +51,7 @@ func (c *Counter) RenderPage(ctx *gin.Context) (html.Block, error) {
 		html.P(nil, html.Text("Blocks is a framework for building web applications in Go.")),
 		block,
 	)
-	return pageLayout(main), nil
+	return counterLayout(main), nil
 }
 
 func (c *Counter) RenderBlock(ctx *gin.Context) (html.Block, error) {
