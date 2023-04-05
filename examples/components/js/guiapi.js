@@ -80,8 +80,8 @@ function hydrate() {
         if (el.dataset.action) {
             hydrateAction(el)
         }
-        if (el.attributes.getNamedItem("ga-click")) {
-            hydrateClick(el)
+        if (el.attributes.getNamedItem("ga-on")) {
+            hydrateOn(el)
         }
     }
 }
@@ -103,13 +103,14 @@ function hydrateAction(el) {
     el.classList.remove("ga")
 }
 
-function hydrateClick(el) {
-    var action = el.attributes.getNamedItem("ga-click").value
+function hydrateOn(el) {
+    var eventType = el.attributes.getNamedItem("ga-on").value
+    var action = el.attributes.getNamedItem("ga-action").value
     var args = null
     if (el.attributes.getNamedItem("ga-args")) {
         args = el.attributes.getNamedItem("ga-args").value
     }
-    el.addEventListener("click", function (e) {
+    el.addEventListener(eventType, function (e) {
         guiapi(action, args);
         e.preventDefault();
         e.stopPropagation();

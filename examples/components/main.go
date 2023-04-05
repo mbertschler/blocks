@@ -17,7 +17,7 @@ import (
 // -[ ] add a second page
 // -[ ] TODO MVC example?
 // -[ ] https://github.com/tastejs/todomvc/blob/master/app-spec.md
-//
+
 // maybe later:
 // -[ ] offer cockroachdb as storage
 // -[ ] text field for your name

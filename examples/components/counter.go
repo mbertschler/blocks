@@ -47,9 +47,9 @@ func (c *Counter) RenderBlock(ctx *gin.Context) (html.Block, error) {
 	block := html.Div(html.Id("counter"),
 		html.H3(nil, html.Text("Counter")),
 		html.P(html.Id("count"), html.Text(fmt.Sprintf("Current count: %d", counter.Count))),
-		html.Button(html.Class("ga").Attr("ga-click", "Counter.Decrease"), html.Text("-")),
+		html.Button(html.Class("ga").Attr("ga-on", "click").Attr("ga-action", "Counter.Decrease"), html.Text("-")),
 		html.Text(" "),
-		html.Button(html.Class("ga").Attr("ga-click", "Counter.Increase"), html.Text("+")),
+		html.Button(html.Class("ga").Attr("ga-on", "click").Attr("ga-action", "Counter.Increase"), html.Text("+")),
 	)
 	return block, nil
 }
