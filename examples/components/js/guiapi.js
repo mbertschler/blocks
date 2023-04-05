@@ -119,6 +119,10 @@ function hydrateOn(el) {
         var args = null
         if (el.attributes.getNamedItem("ga-args")) {
             args = el.attributes.getNamedItem("ga-args").value
+            try {
+                args = JSON.parse(args)
+            } catch (e) { }
+
         }
         el.addEventListener(eventType, function (e) {
             guiapi(action, args);

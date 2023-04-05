@@ -41,7 +41,9 @@ func main() {
 
 	todoList := &TodoList{App: app}
 	app.Server.RegisterComponent(todoList)
-	app.Server.RegisterPage("/", todoList.RenderPage)
+	app.Server.RegisterPage("/", todoList.RenderAll)
+	app.Server.RegisterPage("/active", todoList.RenderActive)
+	app.Server.RegisterPage("/completed", todoList.RenderCompleted)
 
 	app.Server.Static("/js/", "./js")
 	app.Server.Static("/css/", "./css")
