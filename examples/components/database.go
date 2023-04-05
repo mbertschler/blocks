@@ -12,12 +12,14 @@ type DB struct {
 	lock     sync.Mutex
 	sessions map[string]*Session
 	counters map[string]*StoredCounter
+	todos    map[string]*StoredTodo
 }
 
 func NewDB() *DB {
 	return &DB{
 		sessions: make(map[string]*Session),
 		counters: make(map[string]*StoredCounter),
+		todos:    make(map[string]*StoredTodo),
 	}
 }
 
@@ -103,4 +105,35 @@ func RandomString() (string, error) {
 	}
 	str := base64.URLEncoding.EncodeToString(buf)
 	return str, nil
+}
+
+type StoredTodo struct {
+	SessionID string
+	Items     []StoredTodoItem
+}
+
+type StoredTodoItem struct {
+	ID   int
+	Done bool
+	Text string
+}
+
+func (db *DB) GetTodo(id string) (*StoredTodo, error) {
+	db.lock.Lock()
+	defer db.lock.Unlock()
+	t, ok := db.todos[id]
+	if !ok {
+		t = &StoredTodo{
+			SessionID: id,
+		}
+		db.todos[id] = t
+	}
+	return t, nil
+}
+
+func (db *DB) SetTodo(t *StoredTodo) error {
+	db.lock.Lock()
+	defer db.lock.Unlock()
+	db.todos[t.SessionID] = t
+	return nil
 }

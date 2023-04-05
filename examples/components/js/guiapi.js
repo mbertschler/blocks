@@ -1,6 +1,8 @@
+"use strict";
+
 var callableFunctions = {}
 
-const debugGuiapi = false
+const debugGuiapi = true
 
 function guiapi(name, args, callback) {
     if (debugGuiapi) {
@@ -105,18 +107,29 @@ function hydrateAction(el) {
 
 function hydrateOn(el) {
     var eventType = el.attributes.getNamedItem("ga-on").value
-    var action = el.attributes.getNamedItem("ga-action").value
-    var args = null
-    if (el.attributes.getNamedItem("ga-args")) {
-        args = el.attributes.getNamedItem("ga-args").value
+    if (el.attributes.getNamedItem("ga-func")) {
+        const func = el.attributes.getNamedItem("ga-func").value
+        const callable = callableFunctions[func]
+        if (!callable) {
+            console.warn("function call not implemented :(", func, el);
+        }
+        el.addEventListener(eventType, callable)
+    } else {
+        var action = el.attributes.getNamedItem("ga-action").value
+        var args = null
+        if (el.attributes.getNamedItem("ga-args")) {
+            args = el.attributes.getNamedItem("ga-args").value
+        }
+        el.addEventListener(eventType, function (e) {
+            guiapi(action, args);
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        })
     }
-    el.addEventListener(eventType, function (e) {
-        guiapi(action, args);
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-    })
     el.classList.remove("ga")
 }
 
-hydrate()
+function setupGuiapi() {
+    hydrate()
+}
