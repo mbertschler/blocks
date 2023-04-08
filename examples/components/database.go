@@ -125,6 +125,10 @@ func (db *DB) GetTodo(id string) (*StoredTodo, error) {
 	if !ok {
 		t = &StoredTodo{
 			SessionID: id,
+			Items: []StoredTodoItem{
+				{ID: 1, Text: "Buy bread", Done: true},
+				{ID: 2, Text: "Buy oatmilk", Done: false},
+			},
 		}
 		db.todos[id] = t
 	}

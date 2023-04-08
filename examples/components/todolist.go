@@ -14,6 +14,9 @@ import (
 // done with NewTodo and first DB integration at 14:50
 // done with item toggling and deletion at 15:05
 // done with all active and completed filter pages 15:30
+// ---- long break ----
+// start again at 19:10
+// done with ToggleAll at 19:17
 
 func todoLayout(todoApp html.Block) html.Block {
 	return html.Blocks{
@@ -50,6 +53,7 @@ func (t *TodoList) Component() *ComponentConfig {
 		Actions: map[string]ActionFunc{
 			"NewTodo":    t.NewTodo,
 			"ToggleItem": t.ToggleItem,
+			"ToggleAll":  t.ToggleAll,
 			"DeleteItem": t.DeleteItem,
 		},
 	}
@@ -129,7 +133,8 @@ func (t *TodoList) renderMainBlock(todos *StoredTodo, page string) (html.Block, 
 	}
 	main := html.Elem("section", html.Class("main"),
 		html.Input(html.Class("toggle-all").Attr("type", "checkbox")),
-		html.Label(html.Attr("for", "toggle-all"), html.Text("Mark all as complete")),
+		html.Label(html.Class("ga").Attr("for", "toggle-all").Attr("ga-on", "click").Attr("ga-action", "TodoList.ToggleAll").
+			Attr("ga-args", fmt.Sprintf(`{"page":%q}`, page)), html.Text("Mark all as complete")),
 		html.Ul(html.Class("todo-list"),
 			items,
 			// html.Li(html.Class("completed"),
@@ -263,6 +268,47 @@ func (t *TodoList) ToggleItem(ctx *gin.Context, args json.RawMessage) (*Response
 		if item.ID == input.ID {
 			todos.Items[i].Done = !todos.Items[i].Done
 		}
+	}
+
+	err = t.App.DB.SetTodo(todos)
+	if err != nil {
+		return nil, err
+	}
+
+	appBlock, err := t.renderAppBlock(ctx, input.Page)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReplaceContent(".todoapp", appBlock)
+}
+
+func (t *TodoList) ToggleAll(ctx *gin.Context, args json.RawMessage) (*Response, error) {
+	type In struct {
+		Page string `json:"page"`
+	}
+	sess := sessionFromContext(ctx)
+	todos, err := t.App.DB.GetTodo(sess.ID)
+	if err != nil {
+		return nil, err
+	}
+	var input In
+	err = json.Unmarshal(args, &input)
+	if err != nil {
+		log.Println("error unmarshaling args", string(args))
+		return nil, err
+	}
+
+	allDone := true
+	for _, item := range todos.Items {
+		if !item.Done {
+			allDone = false
+			break
+		}
+	}
+
+	for i := range todos.Items {
+		todos.Items[i].Done = !allDone
 	}
 
 	err = t.App.DB.SetTodo(todos)
