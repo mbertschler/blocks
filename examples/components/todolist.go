@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mbertschler/blocks/html"
@@ -17,6 +18,7 @@ import (
 // ---- long break ----
 // start again at 19:10
 // done with ToggleAll at 19:17
+// done with item editing 20:35
 
 func todoLayout(todoApp html.Block) html.Block {
 	return html.Blocks{
@@ -27,6 +29,7 @@ func todoLayout(todoApp html.Block) html.Block {
 				html.Meta(html.Name("viewport").Content("width=device-width, initial-scale=1")),
 				html.Title(nil, html.Text("Guiapi • TodoMVC")),
 				html.Link(html.Rel("stylesheet").Href("https://cdn.jsdelivr.net/npm/todomvc-app-css@2.4.2/index.min.css")),
+				html.Link(html.Rel("stylesheet").Href("/css/main.css")),
 			),
 			html.Body(nil,
 				todoApp,
@@ -51,10 +54,13 @@ func (t *TodoList) Component() *ComponentConfig {
 	return &ComponentConfig{
 		Name: "TodoList",
 		Actions: map[string]ActionFunc{
-			"NewTodo":    t.NewTodo,
-			"ToggleItem": t.ToggleItem,
-			"ToggleAll":  t.ToggleAll,
-			"DeleteItem": t.DeleteItem,
+			"NewTodo":        t.NewTodo,
+			"ToggleItem":     t.ToggleItem,
+			"ToggleAll":      t.ToggleAll,
+			"DeleteItem":     t.DeleteItem,
+			"ClearCompleted": t.ClearCompleted,
+			"EditItem":       t.EditItem,
+			"UpdateItem":     t.UpdateItem,
 		},
 	}
 }
@@ -66,7 +72,7 @@ const (
 )
 
 func (t *TodoList) RenderAll(ctx *gin.Context) (html.Block, error) {
-	appBlock, err := t.renderAppBlock(ctx, TodoListPageAll)
+	appBlock, err := t.renderAppBlock(ctx, TodoListPageAll, -1)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +80,7 @@ func (t *TodoList) RenderAll(ctx *gin.Context) (html.Block, error) {
 }
 
 func (t *TodoList) RenderActive(ctx *gin.Context) (html.Block, error) {
-	appBlock, err := t.renderAppBlock(ctx, TodoListPageActive)
+	appBlock, err := t.renderAppBlock(ctx, TodoListPageActive, -1)
 	if err != nil {
 		return nil, err
 	}
@@ -82,14 +88,14 @@ func (t *TodoList) RenderActive(ctx *gin.Context) (html.Block, error) {
 }
 
 func (t *TodoList) RenderCompleted(ctx *gin.Context) (html.Block, error) {
-	appBlock, err := t.renderAppBlock(ctx, TodoListPageCompleted)
+	appBlock, err := t.renderAppBlock(ctx, TodoListPageCompleted, -1)
 	if err != nil {
 		return nil, err
 	}
 	return todoLayout(appBlock), nil
 }
 
-func (t *TodoList) renderAppBlock(ctx *gin.Context, page string) (html.Block, error) {
+func (t *TodoList) renderAppBlock(ctx *gin.Context, page string, editItemID int) (html.Block, error) {
 	sess := sessionFromContext(ctx)
 	todos, err := t.App.DB.GetTodo(sess.ID)
 	if err != nil {
@@ -98,7 +104,7 @@ func (t *TodoList) renderAppBlock(ctx *gin.Context, page string) (html.Block, er
 
 	var main, footer html.Block
 	if len(todos.Items) > 0 {
-		main, err = t.renderMainBlock(todos, page)
+		main, err = t.renderMainBlock(todos, page, editItemID)
 		if err != nil {
 			return nil, err
 		}
@@ -120,7 +126,7 @@ func (t *TodoList) renderAppBlock(ctx *gin.Context, page string) (html.Block, er
 	return block, nil
 }
 
-func (t *TodoList) renderMainBlock(todos *StoredTodo, page string) (html.Block, error) {
+func (t *TodoList) renderMainBlock(todos *StoredTodo, page string, editItemID int) (html.Block, error) {
 	items := html.Blocks{}
 	for _, item := range todos.Items {
 		if page == TodoListPageActive && item.Done {
@@ -129,7 +135,7 @@ func (t *TodoList) renderMainBlock(todos *StoredTodo, page string) (html.Block, 
 		if page == TodoListPageCompleted && !item.Done {
 			continue
 		}
-		items.Add(t.renderItem(&item, page))
+		items.Add(t.renderItem(&item, page, editItemID))
 	}
 	main := html.Elem("section", html.Class("main"),
 		html.Input(html.Class("toggle-all").Attr("type", "checkbox")),
@@ -137,36 +143,29 @@ func (t *TodoList) renderMainBlock(todos *StoredTodo, page string) (html.Block, 
 			Attr("ga-args", fmt.Sprintf(`{"page":%q}`, page)), html.Text("Mark all as complete")),
 		html.Ul(html.Class("todo-list"),
 			items,
-			// html.Li(html.Class("completed"),
-			// 	html.Div(html.Class("view"),
-			// 		html.Input(html.Class("toggle").Attr("type", "checkbox").Attr("checked", "")),
-			// 		html.Label(nil, html.Text("Taste JavaScript")),
-			// 		html.Button(html.Class("destroy")),
-			// 	),
-			// 	html.Input(html.Class("edit").Attr("value", "Create a TodoMVC template")),
-			// ),
-			// html.Li(nil,
-			// 	html.Div(html.Class("view"),
-			// 		html.Input(html.Class("toggle").Attr("type", "checkbox")),
-			// 		html.Label(nil, html.Text("Buy a unicorn")),
-			// 		html.Elem("button", html.Class("destroy")),
-			// 	),
-			// 	html.Input(html.Class("edit").Attr("value", "Rule the web")),
-			// ),
 		),
 	)
 	return main, nil
 }
 
-func (t *TodoList) renderItem(item *StoredTodoItem, page string) html.Block {
-	liAttrs := html.Attributes{}
+func (t *TodoList) renderItem(item *StoredTodoItem, page string, editItemID int) html.Block {
+	if item.ID == editItemID {
+		return t.renderItemEdit(item, page, editItemID)
+	}
+
+	liAttrs := html.Attr("ga-on", "dblclick").
+		Attr("ga-action", "TodoList.EditItem").
+		Attr("ga-args", fmt.Sprintf(`{"id":%d,"page":%q}`, item.ID, page))
 	inputAttrs := html.Class("toggle ga").Attr("type", "checkbox").
 		Attr("ga-on", "click").Attr("ga-action", "TodoList.ToggleItem").
 		Attr("ga-args", fmt.Sprintf(`{"id":%d,"page":%q}`, item.ID, page))
 	if item.Done {
-		liAttrs = html.Class("completed")
+		liAttrs = liAttrs.Class("completed ga")
 		inputAttrs = inputAttrs.Attr("checked", "")
+	} else {
+		liAttrs = liAttrs.Class("active ga")
 	}
+
 	li := html.Li(liAttrs,
 		html.Div(html.Class("view"),
 			html.Input(inputAttrs),
@@ -174,7 +173,16 @@ func (t *TodoList) renderItem(item *StoredTodoItem, page string) html.Block {
 			html.Button(html.Class("destroy ga").
 				Attr("ga-on", "click").Attr("ga-action", "TodoList.DeleteItem").
 				Attr("ga-args", fmt.Sprintf(`{"id":%d,"page":%q}`, item.ID, page))),
-			html.Input(html.Class("edit").Attr("value", item.Text)),
+		),
+	)
+	return li
+}
+
+func (t *TodoList) renderItemEdit(item *StoredTodoItem, page string, editItemID int) html.Block {
+	li := html.Li(html.Class("editing"),
+		html.Div(html.Class("view"),
+			html.Input(html.Class("edit ga").Attr("ga-init", "initEdit").
+				Attr("ga-args", fmt.Sprintf(`{"id":%d, "page":%q}`, item.ID, page)).Attr("value", item.Text)),
 		),
 	)
 	return li
@@ -189,11 +197,25 @@ func (t *TodoList) renderFooterBlock(todos *StoredTodo, page string) (html.Block
 		activeClass = "selected"
 	case TodoListPageCompleted:
 		completedClass = "selected"
+	default:
+		allClass = "selected"
 	}
+
+	leftCount := 0
+	for _, item := range todos.Items {
+		if !item.Done {
+			leftCount++
+		}
+	}
+	itemsLeftText := " items left"
+	if leftCount == 1 {
+		itemsLeftText = " item left"
+	}
+
 	footer := html.Elem("footer", html.Class("footer"),
 		html.Span(html.Class("todo-count"),
-			html.Strong(nil, html.Text("2")),
-			html.Text(" items left"),
+			html.Strong(nil, html.Text(fmt.Sprint(leftCount))),
+			html.Text(itemsLeftText),
 		),
 		html.Ul(html.Class("filters"),
 			html.Li(nil,
@@ -206,7 +228,8 @@ func (t *TodoList) renderFooterBlock(todos *StoredTodo, page string) (html.Block
 				html.A(html.Class(completedClass).Href("/completed"), html.Text("Completed")),
 			),
 		),
-		html.Button(html.Class("clear-completed"), html.Text("Clear completed")),
+		html.Button(html.Class("clear-completed ga").Attr("ga-on", "click").Attr("ga-action", "TodoList.ClearCompleted").
+			Attr("ga-args", fmt.Sprintf(`{"page":%q}`, page)), html.Text("Clear completed")),
 	)
 	return footer, nil
 }
@@ -239,7 +262,7 @@ func (t *TodoList) NewTodo(ctx *gin.Context, args json.RawMessage) (*Response, e
 		return nil, err
 	}
 
-	appBlock, err := t.renderAppBlock(ctx, input.Page)
+	appBlock, err := t.renderAppBlock(ctx, input.Page, -1)
 	if err != nil {
 		return nil, err
 	}
@@ -275,7 +298,7 @@ func (t *TodoList) ToggleItem(ctx *gin.Context, args json.RawMessage) (*Response
 		return nil, err
 	}
 
-	appBlock, err := t.renderAppBlock(ctx, input.Page)
+	appBlock, err := t.renderAppBlock(ctx, input.Page, -1)
 	if err != nil {
 		return nil, err
 	}
@@ -316,7 +339,7 @@ func (t *TodoList) ToggleAll(ctx *gin.Context, args json.RawMessage) (*Response,
 		return nil, err
 	}
 
-	appBlock, err := t.renderAppBlock(ctx, input.Page)
+	appBlock, err := t.renderAppBlock(ctx, input.Page, -1)
 	if err != nil {
 		return nil, err
 	}
@@ -354,7 +377,100 @@ func (t *TodoList) DeleteItem(ctx *gin.Context, args json.RawMessage) (*Response
 		return nil, err
 	}
 
-	appBlock, err := t.renderAppBlock(ctx, input.Page)
+	appBlock, err := t.renderAppBlock(ctx, input.Page, -1)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReplaceContent(".todoapp", appBlock)
+}
+
+func (t *TodoList) ClearCompleted(ctx *gin.Context, args json.RawMessage) (*Response, error) {
+	type In struct {
+		Page string `json:"page"`
+	}
+	sess := sessionFromContext(ctx)
+	todos, err := t.App.DB.GetTodo(sess.ID)
+	if err != nil {
+		return nil, err
+	}
+	var input In
+	err = json.Unmarshal(args, &input)
+	if err != nil {
+		return nil, err
+	}
+
+	var newItems []StoredTodoItem
+	for _, item := range todos.Items {
+		if item.Done {
+			continue
+		}
+		newItems = append(newItems, item)
+	}
+	todos.Items = newItems
+
+	err = t.App.DB.SetTodo(todos)
+	if err != nil {
+		return nil, err
+	}
+
+	appBlock, err := t.renderAppBlock(ctx, input.Page, -1)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReplaceContent(".todoapp", appBlock)
+}
+
+func (t *TodoList) EditItem(ctx *gin.Context, args json.RawMessage) (*Response, error) {
+	type In struct {
+		ID   int    `json:"id"`
+		Page string `json:"page"`
+	}
+	var input In
+	err := json.Unmarshal(args, &input)
+	if err != nil {
+		return nil, err
+	}
+
+	appBlock, err := t.renderAppBlock(ctx, input.Page, input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReplaceContent(".todoapp", appBlock)
+}
+
+func (t *TodoList) UpdateItem(ctx *gin.Context, args json.RawMessage) (*Response, error) {
+	type In struct {
+		ID   int    `json:"id"`
+		Text string `json:"text"`
+		Page string `json:"page"`
+	}
+	sess := sessionFromContext(ctx)
+	todos, err := t.App.DB.GetTodo(sess.ID)
+	if err != nil {
+		return nil, err
+	}
+	var input In
+	err = json.Unmarshal(args, &input)
+	if err != nil {
+		log.Println("error unmarshaling args", string(args))
+		return nil, err
+	}
+
+	for i, item := range todos.Items {
+		if item.ID == input.ID {
+			todos.Items[i].Text = strings.TrimSpace(input.Text)
+		}
+	}
+
+	err = t.App.DB.SetTodo(todos)
+	if err != nil {
+		return nil, err
+	}
+
+	appBlock, err := t.renderAppBlock(ctx, input.Page, -1)
 	if err != nil {
 		return nil, err
 	}

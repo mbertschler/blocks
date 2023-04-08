@@ -85,6 +85,9 @@ function hydrate() {
         if (el.attributes.getNamedItem("ga-on")) {
             hydrateOn(el)
         }
+        if (el.attributes.getNamedItem("ga-init")) {
+            hydrateInit(el)
+        }
     }
 }
 
@@ -130,6 +133,26 @@ function hydrateOn(el) {
             e.stopPropagation();
             return false;
         })
+    }
+    el.classList.remove("ga")
+}
+
+function hydrateInit(el) {
+    var initFunc = el.attributes.getNamedItem("ga-init").value
+    var args = null
+    var argsAttr = el.attributes.getNamedItem("ga-args")
+    if (argsAttr) {
+        args = argsAttr.value
+        try {
+            args = JSON.parse(args)
+        } catch (e) { }
+    }
+    var fn = callableFunctions[initFunc];
+    if (fn) {
+        fn(el, args);
+    } else {
+        console.warn("function call not implemented :(", action, el);
+        console.log("during hydrating", elements.length, "elements", elements)
     }
     el.classList.remove("ga")
 }
