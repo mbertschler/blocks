@@ -18,7 +18,11 @@ import (
 // ---- long break ----
 // start again at 19:10
 // done with ToggleAll at 19:17
-// done with item editing 20:35
+// done with item editing 20:35 (half hour was spent debugging the css)
+
+// 1.75 hours in first session (13:45 - 15:30)
+// 1.25 hours in second session (19:10 - 20:35)
+// in total 3 hours
 
 func todoLayout(todoApp html.Block) html.Block {
 	return html.Blocks{
@@ -202,14 +206,23 @@ func (t *TodoList) renderFooterBlock(todos *StoredTodo, page string) (html.Block
 	}
 
 	leftCount := 0
+	someDone := false
 	for _, item := range todos.Items {
 		if !item.Done {
 			leftCount++
+		} else {
+			someDone = true
 		}
 	}
 	itemsLeftText := " items left"
 	if leftCount == 1 {
 		itemsLeftText = " item left"
+	}
+
+	var clearCompletedButton html.Block
+	if someDone {
+		clearCompletedButton = html.Button(html.Class("clear-completed ga").Attr("ga-on", "click").Attr("ga-action", "TodoList.ClearCompleted").
+			Attr("ga-args", fmt.Sprintf(`{"page":%q}`, page)), html.Text("Clear completed"))
 	}
 
 	footer := html.Elem("footer", html.Class("footer"),
@@ -228,8 +241,7 @@ func (t *TodoList) renderFooterBlock(todos *StoredTodo, page string) (html.Block
 				html.A(html.Class(completedClass).Href("/completed"), html.Text("Completed")),
 			),
 		),
-		html.Button(html.Class("clear-completed ga").Attr("ga-on", "click").Attr("ga-action", "TodoList.ClearCompleted").
-			Attr("ga-args", fmt.Sprintf(`{"page":%q}`, page)), html.Text("Clear completed")),
+		clearCompletedButton,
 	)
 	return footer, nil
 }
@@ -255,6 +267,7 @@ func (t *TodoList) NewTodo(ctx *gin.Context, args json.RawMessage) (*Response, e
 			highestID = item.ID
 		}
 	}
+	input.Text = strings.TrimSpace(input.Text)
 	todos.Items = append(todos.Items, StoredTodoItem{ID: highestID + 1, Text: input.Text})
 
 	err = t.App.DB.SetTodo(todos)
