@@ -15,7 +15,7 @@ type Counter struct {
 func (c *Counter) Component() *ComponentConfig {
 	return &ComponentConfig{
 		Name: "Counter",
-		Actions: map[string]ActionFunc{
+		Actions: map[string]Callable{
 			"Increase": c.Increase,
 			"Decrease": c.Decrease,
 		},

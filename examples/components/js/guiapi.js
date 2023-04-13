@@ -14,6 +14,7 @@ function guiapi(name, args, callback) {
     var req = {
         Name: name,
         Args: args,
+        State: state,
     };
     fetch("/guiapi", {
         method: 'POST',
@@ -31,6 +32,9 @@ function guiapi(name, args, callback) {
 }
 
 function handleResponse(r, callback) {
+    if (r.State) {
+        state = r.State;
+    }
     if (r.Error) {
         console.error("[" + r.Error.Code + "]", r.Error.Message, r.Error);
         window.alert("guiapi error, check console");

@@ -105,7 +105,6 @@ func (h *Handler) Handle(c *gin.Context) {
 
 func (h *Handler) process(c *gin.Context, req *Request) *Response {
 	var res = Response{
-		ID:   req.ID,
 		Name: req.Name,
 	}
 	fn, ok := h.Functions[req.Name]
@@ -116,6 +115,10 @@ func (h *Handler) process(c *gin.Context, req *Request) *Response {
 		}
 
 	} else {
+		if c.Keys == nil {
+			c.Keys = map[string]interface{}{}
+		}
+		c.Keys["rawState"] = []byte(req.State)
 		r, err := fn(c, req.Args)
 		if err != nil {
 			res.Error = &Error{
@@ -124,8 +127,12 @@ func (h *Handler) process(c *gin.Context, req *Request) *Response {
 			}
 		}
 		if r != nil {
+			if err == nil {
+				res.Error = r.Error
+			}
 			res.HTML = r.HTML
 			res.JS = r.JS
+			res.State = r.State
 		}
 	}
 	return &res
@@ -133,10 +140,12 @@ func (h *Handler) process(c *gin.Context, req *Request) *Response {
 
 // Request is the sent body of a GUI API call
 type Request struct {
-	ID   int    `json:",omitempty"` // ID can be used from the client to identify responses
 	Name string // Name of the action that is called
 	// Args as object, gets parsed by the called function
 	Args json.RawMessage `json:",omitempty"`
+	// State is can be passed back and forth between the server and browser.
+	// It is held in a Javascript variable, so there is one per browser tab.
+	State json.RawMessage `json:",omitempty"`
 }
 
 type Handler struct {
@@ -147,11 +156,11 @@ type Callable func(c *gin.Context, args json.RawMessage) (*Response, error)
 
 // Response is the returned body of a GUI API call
 type Response struct {
-	ID    int          `json:",omitempty"` // ID from the calling action is returned
 	Name  string       // Name of the action that was called
 	Error *Error       `json:",omitempty"`
 	HTML  []HTMLUpdate `json:",omitempty"` // DOM updates to apply
 	JS    []JSCall     `json:",omitempty"` // JS calls to execute
+	State any          `json:",omitempty"` // State to pass back to the browser
 }
 
 type Error struct {

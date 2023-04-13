@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"time"
@@ -127,18 +126,15 @@ type Component interface {
 	Component() *ComponentConfig
 }
 
-type ActionFunc func(c *gin.Context, args json.RawMessage) (*Response, error)
-type BlockFunc func(c *gin.Context) (html.Block, error)
-
 type ComponentConfig struct {
 	Name    string
-	Actions map[string]ActionFunc
+	Actions map[string]Callable
 }
 
 func (s *Server) RegisterComponent(c Component) {
 	config := c.Component()
 	for name, fn := range config.Actions {
-		s.SetFunc(config.Name+"."+name, Callable(fn))
+		s.SetFunc(config.Name+"."+name, fn)
 	}
 }
 
