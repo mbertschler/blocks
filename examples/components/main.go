@@ -1,25 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/evanw/esbuild/pkg/cli"
 )
 
 // TODO:
-// -[x] cookie based session
-// -[x] guiapi
-// -[x] make the storage swappable
-// -[x] counter demo
-// -[x] turn it into a reusable component
-// -[ ] extract page registration from component
-// -[ ] add a second page
-// -[ ] TODO MVC example?
-// -[ ] https://github.com/tastejs/todomvc/blob/master/app-spec.md
-
-// maybe later:
-// -[ ] offer cockroachdb as storage
-// -[ ] text field for your name
-// -[ ] esbuild integration for more complex JS and importing
+// -[x] esbuild integration for more complex JS and importing
+// -[ ] fake page switching
 
 type App struct {
 	DB     *DB
@@ -34,6 +25,11 @@ func NewApp() *App {
 }
 
 func main() {
+	err := buildBrowserAssets()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	app := NewApp()
 	counter := &Counter{App: app}
 	app.Server.RegisterComponent(counter)
@@ -41,12 +37,27 @@ func main() {
 
 	registerTodoList(app.Server, app.DB)
 
-	app.Server.Static("/js/", "./js")
-	app.Server.Static("/css/", "./css")
+	app.Server.Static("/dist/", "./dist")
 
 	log.Println("listening on localhost:8000")
-	err := http.ListenAndServe("localhost:8000", app.Server.Handler())
+	err = http.ListenAndServe("localhost:8000", app.Server.Handler())
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func buildBrowserAssets() error {
+	log.Println("building browser assets")
+	options := []string{
+		"js/main.js",
+		"--bundle",
+		"--outfile=dist/bundle.js",
+		"--minify",
+		"--sourcemap",
+	}
+	returnCode := cli.Run(options)
+	if returnCode != 0 {
+		return fmt.Errorf("esbuild failed with code %d", returnCode)
+	}
+	return nil
 }

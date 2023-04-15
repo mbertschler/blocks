@@ -1,1 +1,3 @@
-console.log("hello from main.js")
+import "../css/main.css"
+import "./todolist.js"
+

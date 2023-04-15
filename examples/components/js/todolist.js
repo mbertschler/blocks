@@ -1,5 +1,7 @@
 "use strict";
 
+import { guiapi, setupGuiapi, callableFunctions } from "./guiapi.js"
+
 const EnterKey = "Enter"
 const EscapeKey = "Escape"
 
@@ -17,19 +19,19 @@ function initEdit(element, args) {
         if (stoppedEditing) {
             return
         }
-        guiapi("TodoList.UpdateItem", { id: args.id, text: event.target.value, page: args.page });
+        guiapi("TodoList.UpdateItem", { id: args.id, text: event.target.value });
         return false;
     })
     element.addEventListener("keydown", function (event) {
         if (event.key == EscapeKey) {
             stoppedEditing = true
-            guiapi("TodoList.EditItem", { id: -1, page: args.page })
+            guiapi("TodoList.EditItem", { id: 0 })
             return false;
         }
         if (event.key != EnterKey) {
             return false;
         }
-        guiapi("TodoList.UpdateItem", { id: args.id, text: event.target.value, page: args.page });
+        guiapi("TodoList.UpdateItem", { id: args.id, text: event.target.value });
     })
     element.focus()
 }

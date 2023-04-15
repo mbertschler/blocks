@@ -28,6 +28,11 @@ import (
 // todolist.js: 38 lines
 // total: 511 lines
 
+// Code stats after refactoring (excluding comments and imports):
+// todolist.go: 405 lines -15%
+// todolist.js: 38 lines
+// total: 443 lines -14%
+
 func registerTodoList(server *Server, db *DB) {
 	tl := &TodoList{DB: db}
 	server.RegisterComponent(tl)
@@ -88,7 +93,7 @@ func todoLayout(todoApp html.Block, state TodoListState) (html.Block, error) {
 				html.Meta(html.Name("viewport").Content("width=device-width, initial-scale=1")),
 				html.Title(nil, html.Text("Guiapi • TodoMVC")),
 				html.Link(html.Rel("stylesheet").Href("https://cdn.jsdelivr.net/npm/todomvc-app-css@2.4.2/index.min.css")),
-				html.Link(html.Rel("stylesheet").Href("/css/main.css")),
+				html.Link(html.Rel("stylesheet").Href("/dist/bundle.css")),
 			),
 			html.Body(nil,
 				todoApp,
@@ -98,9 +103,8 @@ func todoLayout(todoApp html.Block, state TodoListState) (html.Block, error) {
 					html.P(nil, html.Text("Created by "), html.A(html.Href("https://github.com/mbertschler"), html.Text("Martin Bertschler"))),
 					html.P(nil, html.Text("Part of "), html.A(html.Href("http://todomvc.com"), html.Text("TodoMVC"))),
 				),
-				html.Script(html.Src("/js/guiapi.js")),
 				html.Script(nil, html.JS("var state = "+string(stateJSON)+";")),
-				html.Script(html.Src("/js/todolist.js")),
+				html.Script(html.Src("/dist/bundle.js")),
 			),
 		),
 	}, nil
@@ -195,12 +199,12 @@ func (t *TodoList) renderMainBlock(todos *StoredTodo, page string, editItemID in
 		if page == TodoListPageCompleted && !item.Done {
 			continue
 		}
-		items.Add(t.renderItem(&item, page, editItemID))
+		items.Add(t.renderItem(&item, editItemID))
 	}
 	main := html.Elem("section", html.Class("main"),
 		html.Input(html.Class("toggle-all").Attr("type", "checkbox")),
-		html.Label(html.Class("ga").Attr("for", "toggle-all").Attr("ga-on", "click").Attr("ga-action", "TodoList.ToggleAll").
-			Attr("ga-args", fmt.Sprintf(`{"page":%q}`, page)), html.Text("Mark all as complete")),
+		html.Label(html.Class("ga").Attr("for", "toggle-all").Attr("ga-on", "click").Attr("ga-action", "TodoList.ToggleAll"),
+			html.Text("Mark all as complete")),
 		html.Ul(html.Class("todo-list"),
 			items,
 		),
@@ -208,17 +212,17 @@ func (t *TodoList) renderMainBlock(todos *StoredTodo, page string, editItemID in
 	return main, nil
 }
 
-func (t *TodoList) renderItem(item *StoredTodoItem, page string, editItemID int) html.Block {
+func (t *TodoList) renderItem(item *StoredTodoItem, editItemID int) html.Block {
 	if item.ID == editItemID {
-		return t.renderItemEdit(item, page, editItemID)
+		return t.renderItemEdit(item, editItemID)
 	}
 
 	liAttrs := html.Attr("ga-on", "dblclick").
 		Attr("ga-action", "TodoList.EditItem").
-		Attr("ga-args", fmt.Sprintf(`{"id":%d,"page":%q}`, item.ID, page))
+		Attr("ga-args", fmt.Sprintf(`{"id":%d}`, item.ID))
 	inputAttrs := html.Class("toggle ga").Attr("type", "checkbox").
 		Attr("ga-on", "click").Attr("ga-action", "TodoList.ToggleItem").
-		Attr("ga-args", fmt.Sprintf(`{"id":%d,"page":%q}`, item.ID, page))
+		Attr("ga-args", fmt.Sprintf(`{"id":%d}`, item.ID))
 	if item.Done {
 		liAttrs = liAttrs.Class("completed ga")
 		inputAttrs = inputAttrs.Attr("checked", "")
@@ -232,17 +236,17 @@ func (t *TodoList) renderItem(item *StoredTodoItem, page string, editItemID int)
 			html.Label(nil, html.Text(item.Text)),
 			html.Button(html.Class("destroy ga").
 				Attr("ga-on", "click").Attr("ga-action", "TodoList.DeleteItem").
-				Attr("ga-args", fmt.Sprintf(`{"id":%d,"page":%q}`, item.ID, page))),
+				Attr("ga-args", fmt.Sprintf(`{"id":%d}`, item.ID))),
 		),
 	)
 	return li
 }
 
-func (t *TodoList) renderItemEdit(item *StoredTodoItem, page string, editItemID int) html.Block {
+func (t *TodoList) renderItemEdit(item *StoredTodoItem, editItemID int) html.Block {
 	li := html.Li(html.Class("editing"),
 		html.Div(html.Class("view"),
 			html.Input(html.Class("edit ga").Attr("ga-init", "initEdit").
-				Attr("ga-args", fmt.Sprintf(`{"id":%d, "page":%q}`, item.ID, page)).Attr("value", item.Text)),
+				Attr("ga-args", fmt.Sprintf(`{"id":%d}`, item.ID)).Attr("value", item.Text)),
 		),
 	)
 	return li
@@ -277,8 +281,8 @@ func (t *TodoList) renderFooterBlock(todos *StoredTodo, page string) (html.Block
 
 	var clearCompletedButton html.Block
 	if someDone {
-		clearCompletedButton = html.Button(html.Class("clear-completed ga").Attr("ga-on", "click").Attr("ga-action", "TodoList.ClearCompleted").
-			Attr("ga-args", fmt.Sprintf(`{"page":%q}`, page)), html.Text("Clear completed"))
+		clearCompletedButton = html.Button(html.Class("clear-completed ga").Attr("ga-on", "click").Attr("ga-action", "TodoList.ClearCompleted"),
+			html.Text("Clear completed"))
 	}
 
 	footer := html.Elem("footer", html.Class("footer"),
@@ -316,7 +320,6 @@ func (t *TodoList) NewTodo(ctx *Context, input *NewTodoArgs) (*Response, error) 
 		}
 		input.Text = strings.TrimSpace(input.Text)
 		todos.Items = append(todos.Items, StoredTodoItem{ID: highestID + 1, Text: input.Text})
-
 		return t.DB.SetTodo(todos)
 	})
 }

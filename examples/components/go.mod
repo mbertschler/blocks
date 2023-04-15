@@ -3,6 +3,7 @@ module github.com/mbertschler/blocks/components
 go 1.20
 
 require (
+	github.com/evanw/esbuild v0.17.16
 	github.com/gin-gonic/gin v1.9.0
 	github.com/mbertschler/blocks v1.0.0
 )

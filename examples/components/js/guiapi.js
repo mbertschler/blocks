@@ -1,12 +1,14 @@
 "use strict";
 
-var callableFunctions = {}
+export var callableFunctions = {}
+
+var state = null;
 
 const debugGuiapi = true
 
-function guiapi(name, args, callback) {
+export function guiapi(name, args, callback) {
     if (debugGuiapi) {
-        console.log("guiapi", name, args)
+        console.log("guiapi", "action:", name, "args:", args, "state:", state)
     }
     if (!callback) {
         callback = () => { }
@@ -161,6 +163,15 @@ function hydrateInit(el) {
     el.classList.remove("ga")
 }
 
-function setupGuiapi() {
+export function setupGuiapi() {
+    if (window.state) {
+        state = window.state
+    }
     hydrate()
+}
+
+export default {
+    guiapi,
+    callableFunctions,
+    setupGuiapi,
 }
