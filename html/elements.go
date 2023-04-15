@@ -16,10 +16,10 @@ func Iframe(attr Attributes, children ...Block) Block {
 	return newElement("iframe", attr, children, 0)
 }
 func Link(attr Attributes, children ...Block) Block {
-	return newElement("link", attr, children, SelfClose)
+	return newElement("link", attr, children, Void)
 }
 func Img(attr Attributes, children ...Block) Block {
-	return newElement("img", attr, children, SelfClose)
+	return newElement("img", attr, children, Void)
 }
 func Meta(attr Attributes, children ...Block) Block {
 	return newElement("meta", attr, children, Void)
@@ -100,11 +100,11 @@ func Strong(attr Attributes, children ...Block) Block {
 	return newElement("strong", attr, children, 0)
 }
 func Input(attr Attributes, children ...Block) Block {
-	return newElement("input", attr, children, SelfClose)
+	return newElement("input", attr, children, Void)
 }
 func Br() Block {
-	return newElement("br", nil, nil, SelfClose)
+	return newElement("br", nil, nil, Void)
 }
 func Hr(attr Attributes) Block {
-	return newElement("hr", attr, nil, SelfClose)
+	return newElement("hr", attr, nil, Void)
 }

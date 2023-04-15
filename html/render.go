@@ -164,11 +164,7 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 			}
 			w.Write([]byte(" " + v.Key + "=\"" + html.EscapeString(fmt.Sprint(v.Value)) + "\""))
 		}
-		if el.Options&SelfClose != 0 {
-			w.Write([]byte("/>"))
-		} else {
-			w.Write([]byte(">"))
-		}
+		w.Write([]byte(">"))
 		if len(el.Children) > 0 {
 			if !ctx.minified && el.Options&NoWhitespace == 0 {
 				w.Write([]byte{'\n'})
@@ -187,7 +183,7 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 			}
 			ctx.exit(item)
 		}
-		if el.Options&Void+el.Options&SelfClose == 0 {
+		if el.Options&Void == 0 {
 			if !ctx.minified && el.Options&NoWhitespace == 0 && len(el.Children) > 0 {
 				w.Write(bytes.Repeat([]byte{' '}, ctx.level*indentation))
 			}
@@ -236,7 +232,6 @@ type Option int8
 
 const (
 	Void Option = 1 << iota
-	SelfClose
 	CSSElement
 	JSElement
 	NoWhitespace
