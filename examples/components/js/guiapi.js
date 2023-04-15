@@ -1,10 +1,17 @@
-"use strict";
-
 export var callableFunctions = {}
 
-var state = null;
+export function registerFunctions(object) {
+    for (const [key, value] of Object.entries(object)) {
+        if (typeof value !== 'function') {
+            continue
+        }
+        callableFunctions[key] = value
+    }
+}
 
-const debugGuiapi = true
+var state = null
+
+let debugGuiapi = false
 
 export function guiapi(name, args, callback) {
     if (debugGuiapi) {
@@ -17,7 +24,7 @@ export function guiapi(name, args, callback) {
         Name: name,
         Args: args,
         State: state,
-    };
+    }
     fetch("/guiapi", {
         method: 'POST',
         mode: 'cors',
@@ -35,46 +42,46 @@ export function guiapi(name, args, callback) {
 
 function handleResponse(r, callback) {
     if (r.State) {
-        state = r.State;
+        state = r.State
     }
     if (r.Error) {
-        console.error("[" + r.Error.Code + "]", r.Error.Message, r.Error);
-        window.alert("guiapi error, check console");
+        console.error("[" + r.Error.Code + "]", r.Error.Message, r.Error)
+        window.alert("guiapi error, check console")
         callback(r.Error)
-        return;
+        return
     }
     if (r.HTML) {
         for (var j = 0; j < r.HTML.length; j++) {
-            var update = r.HTML[j];
-            const el = document.querySelector(update.Selector);
+            var update = r.HTML[j]
+            const el = document.querySelector(update.Selector)
             if (!el) {
-                console.warn("update selector not found :(", update.Selector, update);
-                continue;
+                console.warn("update selector not found :(", update.Selector, update)
+                continue
             }
 
             switch (update.Operation) {
                 case 1:
-                    el.innerHTML = update.Content;
-                    break;
+                    el.innerHTML = update.Content
+                    break
                 case 2:
-                    el.outerHTML = update.Content;
-                    break;
+                    el.outerHTML = update.Content
+                    break
                 case 3:
-                    el.insertAdjacentHTML('beforebegin', update.Content);
-                    break;
+                    el.insertAdjacentHTML('beforebegin', update.Content)
+                    break
                 default:
-                    console.warn("update type not implemented :(", update);
+                    console.warn("update type not implemented :(", update)
             }
         }
     }
     if (r.JS) {
         for (var j = 0; j < r.JS.length; j++) {
-            var call = r.JS[j];
-            var func = callableFunctions[call.Name];
+            var call = r.JS[j]
+            var func = callableFunctions[call.Name]
             if (func) {
-                func(call.Args);
+                func(call.Args)
             } else {
-                console.warn("function call not implemented :(", call);
+                console.warn("function call not implemented :(", call)
             }
         }
     }
@@ -104,11 +111,11 @@ function hydrateAction(el) {
     if (variable) {
         args = window[variable]
     }
-    var fn = callableFunctions[action];
+    var fn = callableFunctions[action]
     if (fn) {
-        fn(el, args);
+        fn(el, args)
     } else {
-        console.warn("function call not implemented :(", action, el);
+        console.warn("function call not implemented :(", action, el)
         console.log("during hydrating", elements.length, "elements", elements)
     }
     el.classList.remove("ga")
@@ -120,7 +127,7 @@ function hydrateOn(el) {
         const func = el.attributes.getNamedItem("ga-func").value
         const callable = callableFunctions[func]
         if (!callable) {
-            console.warn("function call not implemented :(", func, el);
+            console.warn("function call not implemented :(", func, el)
         }
         el.addEventListener(eventType, callable)
     } else {
@@ -134,10 +141,10 @@ function hydrateOn(el) {
 
         }
         el.addEventListener(eventType, function (e) {
-            guiapi(action, args);
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
+            guiapi(action, args)
+            e.preventDefault()
+            e.stopPropagation()
+            return false
         })
     }
     el.classList.remove("ga")
@@ -153,17 +160,20 @@ function hydrateInit(el) {
             args = JSON.parse(args)
         } catch (e) { }
     }
-    var fn = callableFunctions[initFunc];
+    var fn = callableFunctions[initFunc]
     if (fn) {
-        fn(el, args);
+        fn(el, args)
     } else {
-        console.warn("function call not implemented :(", action, el);
+        console.warn("function call not implemented :(", action, el)
         console.log("during hydrating", elements.length, "elements", elements)
     }
     el.classList.remove("ga")
 }
 
-export function setupGuiapi() {
+export function setupGuiapi(options) {
+    if (options && options.debug) {
+        debugGuiapi = true
+    }
     if (window.state) {
         state = window.state
     }
@@ -172,6 +182,6 @@ export function setupGuiapi() {
 
 export default {
     guiapi,
-    callableFunctions,
     setupGuiapi,
+    registerFunctions,
 }

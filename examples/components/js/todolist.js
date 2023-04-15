@@ -1,6 +1,4 @@
-"use strict";
-
-import { guiapi, setupGuiapi, callableFunctions } from "./guiapi.js"
+import { guiapi } from "./guiapi.js"
 
 const EnterKey = "Enter"
 const EscapeKey = "Escape"
@@ -11,7 +9,6 @@ function newTodoKeydown(event) {
     }
     guiapi("TodoList.NewTodo", { text: event.target.value })
 }
-callableFunctions.newTodoKeydown = newTodoKeydown
 
 function initEdit(element, args) {
     let stoppedEditing = false
@@ -26,15 +23,17 @@ function initEdit(element, args) {
         if (event.key == EscapeKey) {
             stoppedEditing = true
             guiapi("TodoList.EditItem", { id: 0 })
-            return false;
+            return false
         }
         if (event.key != EnterKey) {
-            return false;
+            return false
         }
         guiapi("TodoList.UpdateItem", { id: args.id, text: event.target.value });
     })
     element.focus()
 }
-callableFunctions.initEdit = initEdit
 
-setupGuiapi()
+export default {
+    newTodoKeydown,
+    initEdit,
+}

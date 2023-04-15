@@ -178,12 +178,8 @@ const (
 
 type HTMLUpdate struct {
 	Operation HTMLOp // how to apply this update
-	Selector  string // jQuery style selector: #id .class
-	Content   string `json:",omitempty"` // inner HTML
-	// Init calls are executed after the HTML is added
-	Init []JSCall `json:",omitempty"`
-	// Destroy calls are executed before the HTML is removed
-	Destroy []JSCall `json:",omitempty"`
+	Selector  string // querySelector syntax: #id .class
+	Content   string `json:",omitempty"`
 }
 
 type JSCall struct {
