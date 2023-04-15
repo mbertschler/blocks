@@ -25,7 +25,7 @@ func (h *Handler) SetFunc(name string, fn Callable) {
 // ReplaceContent is a helper function that returns a Result that replaces
 // the element content chosen by the selector with the passed Block.
 func ReplaceContent(selector string, block html.Block) (*Response, error) {
-	out, err := html.RenderString(block)
+	out, err := html.RenderMinifiedString(block)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func ReplaceContent(selector string, block html.Block) (*Response, error) {
 // ReplaceElement is a helper function that returns a Result that
 // replaces the whole element chosen by the selector with the passed Block.
 func ReplaceElement(selector string, block html.Block) (*Response, error) {
-	out, err := html.RenderString(block)
+	out, err := html.RenderMinifiedString(block)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func ReplaceElement(selector string, block html.Block) (*Response, error) {
 // InsertBefore is a helper function that returns a Result that
 // inserts a block on the same level before the passed selector.
 func InsertBefore(selector string, block html.Block) (*Response, error) {
-	out, err := html.RenderString(block)
+	out, err := html.RenderMinifiedString(block)
 	if err != nil {
 		return nil, err
 	}

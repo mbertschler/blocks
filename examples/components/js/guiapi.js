@@ -15,7 +15,7 @@ let debugGuiapi = false
 
 export function guiapi(name, args, callback) {
     if (debugGuiapi) {
-        console.log("guiapi", "action:", name, "args:", args, "state:", state)
+        console.log("guiapi action:", name, "args:", args, "state:", state)
     }
     if (!callback) {
         callback = () => { }
@@ -101,6 +101,9 @@ function hydrate() {
         if (el.attributes.getNamedItem("ga-init")) {
             hydrateInit(el)
         }
+        if (el.attributes.getNamedItem("ga-link")) {
+            hydrateLink(el)
+        }
     }
 }
 
@@ -138,7 +141,6 @@ function hydrateOn(el) {
             try {
                 args = JSON.parse(args)
             } catch (e) { }
-
         }
         el.addEventListener(eventType, function (e) {
             guiapi(action, args)
@@ -170,6 +172,42 @@ function hydrateInit(el) {
     el.classList.remove("ga")
 }
 
+let originalState = null
+
+function hydrateLink(el) {
+    var action = el.attributes.getNamedItem("ga-link").value
+    var newState = null
+    if (el.attributes.getNamedItem("ga-state")) {
+        newState = el.attributes.getNamedItem("ga-state").value
+        try {
+            newState = JSON.parse(newState)
+        } catch (e) { }
+    }
+    el.addEventListener("click", function (e) {
+        if (originalState === null) {
+            originalState = {
+                action,
+                oldState: { ...state },
+            }
+        }
+        guiapi(action, newState, err => {
+            if (err) {
+                console.error("error", err)
+                return
+            }
+            const pushedState = {
+                action,
+                oldState: { ...state },
+            }
+            window.history.pushState(pushedState, "", el.href)
+        })
+        e.preventDefault()
+        e.stopPropagation()
+        return false
+    })
+    el.classList.remove("ga")
+}
+
 export function setupGuiapi(options) {
     if (options && options.debug) {
         debugGuiapi = true
@@ -178,6 +216,17 @@ export function setupGuiapi(options) {
         state = window.state
     }
     hydrate()
+    setupHistory()
+}
+
+function setupHistory() {
+    window.addEventListener("popstate", function (e) {
+        let s = e.state
+        if (!s) {
+            s = originalState
+        }
+        guiapi(s.action, s.oldState)
+    })
 }
 
 export default {

@@ -36,9 +36,9 @@ import (
 func registerTodoList(server *Server, db *DB) {
 	tl := &TodoList{DB: db}
 	server.RegisterComponent(tl)
-	server.RegisterPage("/", tl.RenderPage(TodoListPageAll))
-	server.RegisterPage("/active", tl.RenderPage(TodoListPageActive))
-	server.RegisterPage("/completed", tl.RenderPage(TodoListPageCompleted))
+	server.RegisterPage("/", tl.RenderFullPage(TodoListPageAll))
+	server.RegisterPage("/active", tl.RenderFullPage(TodoListPageActive))
+	server.RegisterPage("/completed", tl.RenderFullPage(TodoListPageCompleted))
 }
 
 type Context struct {
@@ -102,6 +102,7 @@ func todoLayout(todoApp html.Block, state TodoListState) (html.Block, error) {
 					html.P(nil, html.Text("Template by "), html.A(html.Href("http://sindresorhus.com"), html.Text("Sindre Sorhus"))),
 					html.P(nil, html.Text("Created by "), html.A(html.Href("https://github.com/mbertschler"), html.Text("Martin Bertschler"))),
 					html.P(nil, html.Text("Part of "), html.A(html.Href("http://todomvc.com"), html.Text("TodoMVC"))),
+					html.A(html.Href("/counter"), html.Text("Counter Example")),
 				),
 				html.Script(nil, html.JS("var state = "+string(stateJSON)+";")),
 				html.Script(html.Src("/dist/bundle.js")),
@@ -125,6 +126,7 @@ func (t *TodoList) Component() *ComponentConfig {
 			"ClearCompleted": ContextCallable(t.ClearCompleted),
 			"EditItem":       ContextCallable(t.EditItem),
 			"UpdateItem":     ContextCallable(t.UpdateItem),
+			"Page":           ContextCallable(t.Page),
 		},
 	}
 }
@@ -145,23 +147,40 @@ type TodoListProps struct {
 	EditItemID int
 }
 
-func (t *TodoList) RenderPage(page string) PageFunc {
+func (t *TodoList) RenderFullPage(page string) PageFunc {
 	return ContextPage(func(ctx *Context) (html.Block, error) {
-		return t.renderFullPage(ctx, page)
+		content, err := t.renderPageContent(ctx, page)
+		if err != nil {
+			return nil, err
+		}
+		return todoLayout(content, ctx.State)
 	})
 }
 
-func (t *TodoList) renderFullPage(ctx *Context, page string) (html.Block, error) {
+func (t *TodoList) renderPageContent(ctx *Context, page string) (html.Block, error) {
 	ctx.State.Page = page
 	props, err := t.todoListProps(ctx)
 	if err != nil {
 		return nil, err
 	}
-	appBlock, err := t.renderBlock(props)
+	return t.renderBlock(props)
+}
+
+type PageArgs struct {
+	Page string
+}
+
+func (t *TodoList) Page(ctx *Context, args *PageArgs) (*Response, error) {
+	block, err := t.renderPageContent(ctx, args.Page)
 	if err != nil {
 		return nil, err
 	}
-	return todoLayout(appBlock, ctx.State)
+	res, err := ReplaceContent(".todoapp", block)
+	if err != nil {
+		return nil, err
+	}
+	res.State = ctx.State
+	return res, nil
 }
 
 func (t *TodoList) renderBlock(props *TodoListProps) (html.Block, error) {
@@ -292,13 +311,13 @@ func (t *TodoList) renderFooterBlock(todos *StoredTodo, page string) (html.Block
 		),
 		html.Ul(html.Class("filters"),
 			html.Li(nil,
-				html.A(html.Class(allClass).Href("/"), html.Text("All")),
+				html.A(html.Class(allClass+" ga").Href("/").Attr("ga-link", "TodoList.Page").Attr("ga-state", `{"Page":"all"}`), html.Text("All")),
 			),
 			html.Li(nil,
-				html.A(html.Class(activeClass).Href("/active"), html.Text("Active")),
+				html.A(html.Class(activeClass+" ga").Href("/active").Attr("ga-link", "TodoList.Page").Attr("ga-state", `{"Page":"active"}`), html.Text("Active")),
 			),
 			html.Li(nil,
-				html.A(html.Class(completedClass).Href("/completed"), html.Text("Completed")),
+				html.A(html.Class(completedClass+" ga").Href("/completed").Attr("ga-link", "TodoList.Page").Attr("ga-state", `{"Page":"completed"}`), html.Text("Completed")),
 			),
 		),
 		clearCompletedButton,
