@@ -8,8 +8,6 @@ import (
 	"io"
 )
 
-var renderDebug = true
-
 type UnsafeString string
 type Text string
 type Comment string
@@ -147,7 +145,7 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 		if !ctx.minified {
 			w.Write(bytes.Repeat([]byte{' '}, ctx.level*indentation))
 		}
-		w.Write([]byte("<!--" + el + "-->"))
+		w.Write([]byte("<!--" + html.EscapeString(string(el)) + "-->"))
 		if !ctx.minified {
 			w.Write([]byte{'\n'})
 		}
