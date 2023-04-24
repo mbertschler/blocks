@@ -7,6 +7,8 @@ type element struct {
 	Option html.Option
 }
 
+// Source: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
+// taken from the sidebar, deprecated elements removed
 var elements = []element{
 	{Name: "a"},
 	{Name: "abbr"},
