@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mbertschler/blocks/html"
+	"github.com/mbertschler/blocks/html/attr"
 )
 
 func main() {
@@ -12,7 +13,7 @@ func main() {
 		html.Doctype("html"),
 		html.Html(nil,
 			// Option 2: struct that implements Block interface (RenderHTML() Block)
-			HeadBlock{html.Name("key").Content("super")},
+			HeadBlock{attr.Name("key").Content("super")},
 			// Option 3: function that returns a Block
 			BodyBlock("Hello, world! :) <br>"),
 		),
@@ -31,7 +32,7 @@ func main() {
 }
 
 type HeadBlock struct {
-	html.Attributes
+	attr.Attributes
 }
 
 func (h HeadBlock) RenderHTML() html.Block {
@@ -42,10 +43,10 @@ func (h HeadBlock) RenderHTML() html.Block {
 
 func BodyBlock(in string) html.Block {
 	return html.Body(nil,
-		html.Main(html.Class("main-class\" href=\"/evil/link"),
+		html.Main(attr.Class("main-class\" href=\"/evil/link"),
 			html.H1(nil,
 				html.Text(in),
-				html.Br(),
+				html.Br(nil),
 				html.UnsafeString(in),
 			),
 		),

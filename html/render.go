@@ -6,6 +6,8 @@ import (
 	"html"
 	"html/template"
 	"io"
+
+	"github.com/mbertschler/blocks/html/attr"
 )
 
 type UnsafeString string
@@ -211,31 +213,25 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 	return nil
 }
 
-type Attributes []AttrPair
-type AttrPair struct {
-	Key   string
-	Value interface{}
-}
-
 type Element struct {
 	Type string
-	Attributes
+	attr.Attributes
 	Children Blocks
-	Options  Option
+	Options  ElementOption
 }
 
 func (Element) RenderHTML() Block { return nil }
 
-type Option int8
+type ElementOption int8
 
 const (
-	Void Option = 1 << iota
+	Void ElementOption = 1 << iota
 	CSSElement
 	JSElement
 	NoWhitespace
 )
 
-func newElement(el string, attr Attributes, children []Block, opt Option) Block {
+func newElement(el string, attr attr.Attributes, children []Block, opt ElementOption) Block {
 	if len(children) == 0 {
 		return Element{el, attr, nil, opt}
 	}
@@ -245,6 +241,6 @@ func newElement(el string, attr Attributes, children []Block, opt Option) Block 
 	return Element{el, attr, Blocks(children), opt}
 }
 
-func Elem(el string, attr Attributes, children ...Block) Block {
+func Elem(el string, attr attr.Attributes, children ...Block) Block {
 	return newElement(el, attr, children, 0)
 }
