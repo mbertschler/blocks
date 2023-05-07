@@ -6,9 +6,9 @@ import (
 	"html"
 	"html/template"
 	"io"
-)
 
-var renderDebug = true
+	"github.com/mbertschler/blocks/html/attr"
+)
 
 type UnsafeString string
 type Text string
@@ -147,7 +147,7 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 		if !ctx.minified {
 			w.Write(bytes.Repeat([]byte{' '}, ctx.level*indentation))
 		}
-		w.Write([]byte("<!--" + el + "-->"))
+		w.Write([]byte("<!--" + html.EscapeString(string(el)) + "-->"))
 		if !ctx.minified {
 			w.Write([]byte{'\n'})
 		}
@@ -164,11 +164,7 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 			}
 			w.Write([]byte(" " + v.Key + "=\"" + html.EscapeString(fmt.Sprint(v.Value)) + "\""))
 		}
-		if el.Options&SelfClose != 0 {
-			w.Write([]byte("/>"))
-		} else {
-			w.Write([]byte(">"))
-		}
+		w.Write([]byte(">"))
 		if len(el.Children) > 0 {
 			if !ctx.minified && el.Options&NoWhitespace == 0 {
 				w.Write([]byte{'\n'})
@@ -187,7 +183,7 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 			}
 			ctx.exit(item)
 		}
-		if el.Options&Void+el.Options&SelfClose == 0 {
+		if el.Options&Void == 0 {
 			if !ctx.minified && el.Options&NoWhitespace == 0 && len(el.Children) > 0 {
 				w.Write(bytes.Repeat([]byte{' '}, ctx.level*indentation))
 			}
@@ -217,32 +213,25 @@ func renderHTML(c Block, w io.Writer, ctx *renderCtx) error {
 	return nil
 }
 
-type Attributes []AttrPair
-type AttrPair struct {
-	Key   string
-	Value interface{}
-}
-
 type Element struct {
 	Type string
-	Attributes
+	attr.Attributes
 	Children Blocks
-	Options  Option
+	Options  ElementOption
 }
 
 func (Element) RenderHTML() Block { return nil }
 
-type Option int8
+type ElementOption int8
 
 const (
-	Void Option = 1 << iota
-	SelfClose
+	Void ElementOption = 1 << iota
 	CSSElement
 	JSElement
 	NoWhitespace
 )
 
-func newElement(el string, attr Attributes, children []Block, opt Option) Block {
+func newElement(el string, attr attr.Attributes, children []Block, opt ElementOption) Block {
 	if len(children) == 0 {
 		return Element{el, attr, nil, opt}
 	}
@@ -252,6 +241,6 @@ func newElement(el string, attr Attributes, children []Block, opt Option) Block 
 	return Element{el, attr, Blocks(children), opt}
 }
 
-func Elem(el string, attr Attributes, children ...Block) Block {
+func Elem(el string, attr attr.Attributes, children ...Block) Block {
 	return newElement(el, attr, children, 0)
 }

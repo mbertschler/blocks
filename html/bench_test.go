@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"log"
 	"testing"
+
+	"github.com/mbertschler/blocks/html/attr"
 )
 
 func TestHTMLTemplate(t *testing.T) {
@@ -103,7 +105,7 @@ func renderBlocks(print bool) {
 			Doctype("html"),
 			Html(nil,
 				Head(nil,
-					Meta(Charset("UTF-8")),
+					Meta(attr.Charset("UTF-8")),
 					Title(nil, Text(d.Title)),
 				),
 				Body(nil, rows),
