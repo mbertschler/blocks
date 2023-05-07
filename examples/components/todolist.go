@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mbertschler/blocks/html"
+	"github.com/mbertschler/blocks/html/attr"
 )
 
 // started work based on the template at 13:45
@@ -87,25 +88,25 @@ func todoLayout(todoApp html.Block, state TodoListState) (html.Block, error) {
 	}
 	return html.Blocks{
 		html.Doctype("html"),
-		html.Html(html.Attr("lang", "en"),
+		html.Html(attr.Attr("lang", "en"),
 			html.Head(nil,
-				html.Meta(html.Charset("utf-8")),
-				html.Meta(html.Name("viewport").Content("width=device-width, initial-scale=1")),
+				html.Meta(attr.Charset("utf-8")),
+				html.Meta(attr.Name("viewport").Content("width=device-width, initial-scale=1")),
 				html.Title(nil, html.Text("Guiapi • TodoMVC")),
-				html.Link(html.Rel("stylesheet").Href("https://cdn.jsdelivr.net/npm/todomvc-app-css@2.4.2/index.min.css")),
-				html.Link(html.Rel("stylesheet").Href("/dist/bundle.css")),
+				html.Link(attr.Rel("stylesheet").Href("https://cdn.jsdelivr.net/npm/todomvc-app-css@2.4.2/index.min.css")),
+				html.Link(attr.Rel("stylesheet").Href("/dist/bundle.css")),
 			),
 			html.Body(nil,
 				todoApp,
-				html.Elem("footer", html.Class("info"),
+				html.Elem("footer", attr.Class("info"),
 					html.P(nil, html.Text("Double-click to edit a todo")),
-					html.P(nil, html.Text("Template by "), html.A(html.Href("http://sindresorhus.com"), html.Text("Sindre Sorhus"))),
-					html.P(nil, html.Text("Created by "), html.A(html.Href("https://github.com/mbertschler"), html.Text("Martin Bertschler"))),
-					html.P(nil, html.Text("Part of "), html.A(html.Href("http://todomvc.com"), html.Text("TodoMVC"))),
-					html.A(html.Href("/counter"), html.Text("Counter Example")),
+					html.P(nil, html.Text("Template by "), html.A(attr.Href("http://sindresorhus.com"), html.Text("Sindre Sorhus"))),
+					html.P(nil, html.Text("Created by "), html.A(attr.Href("https://github.com/mbertschler"), html.Text("Martin Bertschler"))),
+					html.P(nil, html.Text("Part of "), html.A(attr.Href("http://todomvc.com"), html.Text("TodoMVC"))),
+					html.A(attr.Href("/counter"), html.Text("Counter Example")),
 				),
 				html.Script(nil, html.JS("var state = "+string(stateJSON)+";")),
-				html.Script(html.Src("/dist/bundle.js")),
+				html.Script(attr.Src("/dist/bundle.js")),
 			),
 		),
 	}, nil
@@ -197,10 +198,10 @@ func (t *TodoList) renderBlock(props *TodoListProps) (html.Block, error) {
 		}
 	}
 
-	block := html.Elem("section", html.Class("todoapp"),
-		html.Elem("header", html.Class("header"),
+	block := html.Elem("section", attr.Class("todoapp"),
+		html.Elem("header", attr.Class("header"),
 			html.H1(nil, html.Text("todos")),
-			html.Input(html.Class("new-todo ga").Attr("placeholder", "What needs to be done?").
+			html.Input(attr.Class("new-todo ga").Attr("placeholder", "What needs to be done?").
 				Attr("autofocus", "").Attr("ga-on", "keydown").Attr("ga-func", "newTodoKeydown")),
 		),
 		main,
@@ -220,11 +221,11 @@ func (t *TodoList) renderMainBlock(todos *StoredTodo, page string, editItemID in
 		}
 		items.Add(t.renderItem(&item, editItemID))
 	}
-	main := html.Elem("section", html.Class("main"),
-		html.Input(html.Class("toggle-all").Attr("type", "checkbox")),
-		html.Label(html.Class("ga").Attr("for", "toggle-all").Attr("ga-on", "click").Attr("ga-action", "TodoList.ToggleAll"),
+	main := html.Elem("section", attr.Class("main"),
+		html.Input(attr.Class("toggle-all").Attr("type", "checkbox")),
+		html.Label(attr.Class("ga").Attr("for", "toggle-all").Attr("ga-on", "click").Attr("ga-action", "TodoList.ToggleAll"),
 			html.Text("Mark all as complete")),
-		html.Ul(html.Class("todo-list"),
+		html.Ul(attr.Class("todo-list"),
 			items,
 		),
 	)
@@ -236,10 +237,10 @@ func (t *TodoList) renderItem(item *StoredTodoItem, editItemID int) html.Block {
 		return t.renderItemEdit(item, editItemID)
 	}
 
-	liAttrs := html.Attr("ga-on", "dblclick").
+	liAttrs := attr.Attr("ga-on", "dblclick").
 		Attr("ga-action", "TodoList.EditItem").
 		Attr("ga-args", fmt.Sprintf(`{"id":%d}`, item.ID))
-	inputAttrs := html.Class("toggle ga").Attr("type", "checkbox").
+	inputAttrs := attr.Class("toggle ga").Attr("type", "checkbox").
 		Attr("ga-on", "click").Attr("ga-action", "TodoList.ToggleItem").
 		Attr("ga-args", fmt.Sprintf(`{"id":%d}`, item.ID))
 	if item.Done {
@@ -250,10 +251,10 @@ func (t *TodoList) renderItem(item *StoredTodoItem, editItemID int) html.Block {
 	}
 
 	li := html.Li(liAttrs,
-		html.Div(html.Class("view"),
+		html.Div(attr.Class("view"),
 			html.Input(inputAttrs),
 			html.Label(nil, html.Text(item.Text)),
-			html.Button(html.Class("destroy ga").
+			html.Button(attr.Class("destroy ga").
 				Attr("ga-on", "click").Attr("ga-action", "TodoList.DeleteItem").
 				Attr("ga-args", fmt.Sprintf(`{"id":%d}`, item.ID))),
 		),
@@ -262,9 +263,9 @@ func (t *TodoList) renderItem(item *StoredTodoItem, editItemID int) html.Block {
 }
 
 func (t *TodoList) renderItemEdit(item *StoredTodoItem, editItemID int) html.Block {
-	li := html.Li(html.Class("editing"),
-		html.Div(html.Class("view"),
-			html.Input(html.Class("edit ga").Attr("ga-init", "initEdit").
+	li := html.Li(attr.Class("editing"),
+		html.Div(attr.Class("view"),
+			html.Input(attr.Class("edit ga").Attr("ga-init", "initEdit").
 				Attr("ga-args", fmt.Sprintf(`{"id":%d}`, item.ID)).Attr("value", item.Text)),
 		),
 	)
@@ -300,24 +301,24 @@ func (t *TodoList) renderFooterBlock(todos *StoredTodo, page string) (html.Block
 
 	var clearCompletedButton html.Block
 	if someDone {
-		clearCompletedButton = html.Button(html.Class("clear-completed ga").Attr("ga-on", "click").Attr("ga-action", "TodoList.ClearCompleted"),
+		clearCompletedButton = html.Button(attr.Class("clear-completed ga").Attr("ga-on", "click").Attr("ga-action", "TodoList.ClearCompleted"),
 			html.Text("Clear completed"))
 	}
 
-	footer := html.Elem("footer", html.Class("footer"),
-		html.Span(html.Class("todo-count"),
+	footer := html.Elem("footer", attr.Class("footer"),
+		html.Span(attr.Class("todo-count"),
 			html.Strong(nil, html.Text(fmt.Sprint(leftCount))),
 			html.Text(itemsLeftText),
 		),
-		html.Ul(html.Class("filters"),
+		html.Ul(attr.Class("filters"),
 			html.Li(nil,
-				html.A(html.Class(allClass+" ga").Href("/").Attr("ga-link", "TodoList.Page").Attr("ga-state", `{"Page":"all"}`), html.Text("All")),
+				html.A(attr.Class(allClass+" ga").Href("/").Attr("ga-link", "TodoList.Page").Attr("ga-state", `{"Page":"all"}`), html.Text("All")),
 			),
 			html.Li(nil,
-				html.A(html.Class(activeClass+" ga").Href("/active").Attr("ga-link", "TodoList.Page").Attr("ga-state", `{"Page":"active"}`), html.Text("Active")),
+				html.A(attr.Class(activeClass+" ga").Href("/active").Attr("ga-link", "TodoList.Page").Attr("ga-state", `{"Page":"active"}`), html.Text("Active")),
 			),
 			html.Li(nil,
-				html.A(html.Class(completedClass+" ga").Href("/completed").Attr("ga-link", "TodoList.Page").Attr("ga-state", `{"Page":"completed"}`), html.Text("Completed")),
+				html.A(attr.Class(completedClass+" ga").Href("/completed").Attr("ga-link", "TodoList.Page").Attr("ga-state", `{"Page":"completed"}`), html.Text("Completed")),
 			),
 		),
 		clearCompletedButton,
